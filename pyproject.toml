@@ -5,7 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "bitmath>=1.3.3.1",
     "lmdb>=1.5.1",
+    "progressbar>=2.5",
 ]
 
 [project.scripts]
@@ -22,7 +24,6 @@ docs = [
     "sphinx-argparse-cli>=1.18.2",
     "sphinx-autodoc-typehints>=2.4.4",
     "sphinx-autobuild>=2024.10.3",
-    "autodoc-pydantic>=2.2.0",
     "sphinx-toolbox>=3.8.0",
     "enum-tools[sphinx]>=0.12.0",
 ]
@@ -108,13 +109,12 @@ enable_error_code = [
   "truthy-bool",
 ]
 plugins = [
-  "pydantic.mypy"
 ]
 exclude = ["docs", "tests"]
 
 [[tool.mypy.overrides]]
 module = [
-  "alive_progress",
+  "bitmath.*",
 ]
 ignore_missing_imports = true
 
