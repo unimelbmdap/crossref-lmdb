@@ -9,6 +9,8 @@ import pathlib
 import logging
 import sys
 
+import crossref_lmdb.create
+
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -108,7 +110,7 @@ def setup_parser() -> argparse.ArgumentParser:
 
     create_parser.add_argument(
         "--max-db-size-gb",
-        type=float
+        type=float,
         default="2000",
         help=(
             "Maximum size that the database can grow to, in GB units. "
@@ -197,7 +199,18 @@ def run(args: argparse.Namespace) -> None:
 
 
     if args.command == "create":
-        run_create(args=args)
+
+        create_args = crossref_lmdb.create.CreateParams(
+            public_data_dir=args.public_data_dir,
+            db_dir=args.db_dir,
+            max_db_size_gb=args.max_db_size_gb,
+            compression_level=args.compression_level,
+            commit_frequency=args.commit_frequency,
+            filter_path=args.filter_path,
+            progress_bar=args.progress_bar,
+        )
+
+        crossref_lmdb.create.run(args=create_args)
 
     elif args.command == "update":
         run_update(args=args)
@@ -219,3 +232,4 @@ def run_update(args: argparse.Namespace) -> None:
 
 def run_copy(args: argparse.Namespace) -> None:
     pass
+
