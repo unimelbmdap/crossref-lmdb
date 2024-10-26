@@ -7,6 +7,8 @@ import dataclasses
 import typing
 import logging
 import gzip
+import zlib
+import datetime
 
 import lmdb
 
@@ -38,6 +40,17 @@ class CreateParams:
     def __post_init__(self) -> None:
         self.validate()
         self.set_filter_func()
+
+    @property
+    def max_db_size_bytes(self) -> int:
+
+        multiplier = (
+            1000  # MB
+            * 1000  # KB
+            * 1000  # B
+        )
+
+        return self.max_db_size_gb * multiplier
 
     def set_filter_func(self) -> None:
 
@@ -129,7 +142,64 @@ class CreateParams:
 
 
 def run(args: CreateParams) -> None:
-    pass
+
+    with lmdb.Environment(
+        path=str(args.db_dir),
+        map_size=arg.max_db_size_bytes,
+        subdir=True,
+    ) as env:
+
+        item_iterator = iter_public_data_items(
+            public_data_dir=args.public_data_dir,
+            filter_func=args.filter_func,
+            show_progress=args.show_progress,
+        )
+
+        has_more_items = True
+
+        while has_more_items:
+
+            counter = 0
+
+            with env.begin(write=True) as txn:
+
+                while counter < args.commit_frequency:
+
+                    try:
+                        item = item_iterator.next()
+                    except StopIteration:
+                        has_more_items = False
+                        break
+
+                    doi = str(item["DOI"])
+
+                    doi_bytes = doi.encode("utf8")
+
+                    item_bytes = typing.cast(bytes, item.mini)
+
+                    item_compressed = zlib.compress(
+                        item_bytes,
+                        level=args.compression_level,
+                    )
+
+                    success = txn.put(
+                        key=doi_bytes,
+                        value=item_compressed,
+                        overwrite=False,
+                    )
+
+                    if not success:
+                        LOGGER.warning(f"DOI {doi} already present in database")
+
+                    counter += 1
+
+
+def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
+
+    return datetime.datetime.strptime(
+        indexed_datetime,
+        "%Y-%m-%dT%H:%M:%SZ",
+    )
 
 
 
@@ -172,10 +242,10 @@ def iter_public_data_items(
                     if not isinstance(json_item, simdjson.Object):
                         raise ValueError(json_error_msg)
 
-                    if filter_func is not None and not filter_func(json_item):
+                    if json_item.get("DOI", None) is None:
                         continue
 
-                    if json_item.get("DOI", None) is None:
+                    if filter_func is not None and not filter_func(json_item):
                         continue
 
                     yield json_item
