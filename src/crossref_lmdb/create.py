@@ -157,6 +157,10 @@ def run(args: CreateParams) -> None:
         subdir=True,
     ) as env:
 
+        LOGGER.info(
+            f"Created LMDB database at {args.db_dir}"
+        )
+
         item_iterator = iter_public_data_items(
             public_data_dir=args.public_data_dir,
             filter_func=args.filter_func,
@@ -231,10 +235,16 @@ def run(args: CreateParams) -> None:
 
                     counter += 1
 
+                LOGGER.debug("Committing items")
+
+        most_recent_indexed_str = most_recent_indexed.isoformat()
+
+        LOGGER.info(f"Most recent item index time was: {most_recent_indexed_str}")
+
         with env.begin(write=True) as txn:
             txn.put(
                 key="__most_recent_indexed".encode("utf8"),
-                value=most_recent_indexed.isoformat().encode("utf8"),
+                value=most_recent_indexed_str.encode("utf8"),
             )
 
 
@@ -291,8 +301,9 @@ def iter_public_data_items(
                         continue
 
                     if filter_func is not None and not filter_func(json_item):
+                        LOGGER.debug(f"Filtered out item {json_item.mini}")
                         continue
 
                     yield json_item
 
-                    progress_bar()
+                progress_bar()

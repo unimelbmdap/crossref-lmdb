@@ -1,2 +1,5 @@
-def hello() -> str:
-    return "Hello from crossref-data-db!"
+
+import crossref_lmdb.log
+
+
+crossref_lmdb.log.setup_logging()
