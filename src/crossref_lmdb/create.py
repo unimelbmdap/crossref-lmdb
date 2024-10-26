@@ -102,7 +102,7 @@ class CreateParams:
         if self.db_dir.exists():
 
             with os.scandir(self.db_dir) as it:
-                for item in it:
+                for _ in it:
                     errors.append(
                         f"Output database directory ({self.db_dir}) is not empty"
                     )
@@ -188,7 +188,6 @@ def run(args: CreateParams) -> None:
                     try:
                         doi = str(item["DOI"])
                     except KeyError:
-                        mini = item.mini
                         LOGGER.warning(f"No DOI found in item {item_bytes.decode()}")
                         continue
 
@@ -243,7 +242,7 @@ def run(args: CreateParams) -> None:
 
         with env.begin(write=True) as txn:
             txn.put(
-                key="__most_recent_indexed".encode("utf8"),
+                key=b"__most_recent_indexed",
                 value=most_recent_indexed_str.encode("utf8"),
             )
 
@@ -275,7 +274,7 @@ def iter_public_data_items(
         disable=not show_progress,
     ) as progress_bar:
 
-        for path_num, gz_path in enumerate(gz_paths, 1):
+        for gz_path in gz_paths:
 
             with gzip.open(gz_path, "rb") as handle:
 
