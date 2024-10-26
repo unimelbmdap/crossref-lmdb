@@ -1,5 +1,5 @@
 [project]
-name = "crossref-data-db"
+name = "crossref-lmdb"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-crossref-data-db = "crossref_data_db.cli:main"
+crossref-lmdb = "crossref_lmdb.cli:main"
 
 [project.optional-dependencies]
 interactive = [
@@ -53,7 +53,7 @@ repo-review = "repo-review"
 ipython = "uv run --extra interactive ipython"
 docs = "uv run --extra docs sphinx-build docs gh-pages"
 docs-watch = "uv run --extra docs sphinx-autobuild docs gh-pages"
-crossref-data-db = "uv run crossref-data-db"
+crossref-lmdb = "uv run crossref-lmdb"
 
 [tool.black]
 line-length = 88
