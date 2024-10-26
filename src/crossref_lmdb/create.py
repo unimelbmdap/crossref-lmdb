@@ -5,12 +5,20 @@ import pathlib
 import os
 import dataclasses
 import typing
+import logging
+import gzip
 
 import lmdb
 
 import simdjson
 
+import alive_progress
+
 import crossref_lmdb.utils
+
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.NullHandler())
 
 
 FilterFunc: typing.TypeAlias = typing.Callable[[simdjson.Object], bool]
@@ -122,3 +130,54 @@ class CreateParams:
 
 def run(args: CreateParams) -> None:
     pass
+
+
+
+def iter_public_data_items(
+    public_data_dir: pathlib.Path,
+    filter_func: FilterFunc | None = None,
+    show_progress: bool = True,
+) -> typing.Iterable[simdjson.Object]:
+
+    gz_paths = sorted(public_data_dir.glob("*.gz"))
+
+    n_paths = len(gz_paths)
+
+    json_error_msg = "Invalid JSON"
+
+    with alive_progress.alive_bar(
+        total=n_paths,
+        disable=not show_progress,
+    ) as progress_bar:
+
+        for path_num, gz_path in enumerate(gz_paths, 1):
+
+            with gzip.open(gz_path, "rb") as handle:
+
+                data = handle.read()
+
+                parser = simdjson.Parser()
+
+                json_data = parser.parse(data)
+
+                if not isinstance(json_data, simdjson.Object):
+                    raise ValueError(json_error_msg)
+
+                json_items = json_data["items"]
+                if not isinstance(json_items, simdjson.Array):
+                    raise ValueError(json_error_msg)
+
+                for json_item in json_items:
+
+                    if not isinstance(json_item, simdjson.Object):
+                        raise ValueError(json_error_msg)
+
+                    if filter_func is not None and not filter_func(json_item):
+                        continue
+
+                    if json_item.get("DOI", None) is None:
+                        continue
+
+                    yield json_item
+
+                    progress_bar()

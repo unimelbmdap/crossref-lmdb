@@ -114,6 +114,7 @@ exclude = ["docs", "tests"]
 [[tool.mypy.overrides]]
 module = [
   "lmdb.*",
+  "alive_progress.*",
 ]
 ignore_missing_imports = true
 
