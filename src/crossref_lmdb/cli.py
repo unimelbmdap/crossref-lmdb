@@ -9,8 +9,6 @@ import pathlib
 import logging
 import sys
 
-import bitmath.integrations
-
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -109,12 +107,12 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     create_parser.add_argument(
-        "--max-db-size",
-        type=bitmath.integrations.BitmathType,
-        default="2TB",
+        "--max-db-size-gb",
+        type=float
+        default="2000",
         help=(
-            "Maximum size that the database can grow to. Can be specified in "
-            + "units like '100GB', '10MB', etc. See the documentation for details."
+            "Maximum size that the database can grow to, in GB units. "
+            + "See the documentation for details."
         )
     )
 
