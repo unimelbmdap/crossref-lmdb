@@ -34,7 +34,7 @@ class CreateParams:
     compression_level: int = -1
     commit_frequency: int = 1_000
     filter_path: pathlib.Path | None = None
-    progress_bar: bool = True
+    show_progress: bool = True
     filter_func: FilterFunc | None = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
@@ -50,7 +50,13 @@ class CreateParams:
             * 1000  # B
         )
 
-        return self.max_db_size_gb * multiplier
+        n_bytes = self.max_db_size_gb * multiplier
+
+        if not n_bytes.is_integer():
+            msg = f"Unexpected number of bytes: {n_bytes}"
+            raise ValueError(msg)
+
+        return int(n_bytes)
 
     def set_filter_func(self) -> None:
 
@@ -143,9 +149,11 @@ class CreateParams:
 
 def run(args: CreateParams) -> None:
 
+    most_recent_indexed = datetime.datetime(year=1900, month=1, day=1)
+
     with lmdb.Environment(
         path=str(args.db_dir),
-        map_size=arg.max_db_size_bytes,
+        map_size=args.max_db_size_bytes,
         subdir=True,
     ) as env:
 
@@ -166,16 +174,21 @@ def run(args: CreateParams) -> None:
                 while counter < args.commit_frequency:
 
                     try:
-                        item = item_iterator.next()
+                        item = next(item_iterator)
                     except StopIteration:
                         has_more_items = False
                         break
 
-                    doi = str(item["DOI"])
+                    item_bytes = typing.cast(bytes, item.mini)
+
+                    try:
+                        doi = str(item["DOI"])
+                    except KeyError:
+                        mini = item.mini
+                        LOGGER.warning(f"No DOI found in item {item_bytes.decode()}")
+                        continue
 
                     doi_bytes = doi.encode("utf8")
-
-                    item_bytes = typing.cast(bytes, item.mini)
 
                     item_compressed = zlib.compress(
                         item_bytes,
@@ -191,15 +204,47 @@ def run(args: CreateParams) -> None:
                     if not success:
                         LOGGER.warning(f"DOI {doi} already present in database")
 
+                    try:
+                        item_indexed = item["indexed"]
+                    except KeyError:
+                        LOGGER.warning(f"No indexed date for DOI {doi}")
+
+                    if not isinstance(item_indexed, simdjson.Object):
+                        msg = f"Unexpected JSON format for DOI {doi}"
+                        raise ValueError(msg)
+
+                    try:
+                        item_datetime_str = item_indexed["date-time"]
+                    except KeyError:
+                        LOGGER.warning(f"No indexed date for DOI {doi}")
+
+                    if not isinstance(item_datetime_str, str):
+                        msg = f"Unexpected JSON format for DOI {doi}"
+                        raise ValueError(msg)
+
+                    indexed_datetime = parse_indexed_datetime(
+                        indexed_datetime=item_datetime_str
+                    )
+
+                    if indexed_datetime > most_recent_indexed:
+                        most_recent_indexed = indexed_datetime
+
                     counter += 1
+
+        with env.begin(write=True) as txn:
+            txn.put(
+                key="__most_recent_indexed".encode("utf8"),
+                value=most_recent_indexed.isoformat().encode("utf8"),
+            )
 
 
 def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
 
-    return datetime.datetime.strptime(
-        indexed_datetime,
-        "%Y-%m-%dT%H:%M:%SZ",
-    )
+    if not indexed_datetime.endswith("Z"):
+        msg = f"Unexpected date format in `{indexed_datetime}`"
+        raise ValueError(msg)
+
+    return datetime.datetime.fromisoformat(indexed_datetime[:-1])
 
 
 
@@ -207,7 +252,7 @@ def iter_public_data_items(
     public_data_dir: pathlib.Path,
     filter_func: FilterFunc | None = None,
     show_progress: bool = True,
-) -> typing.Iterable[simdjson.Object]:
+) -> typing.Iterator[simdjson.Object]:
 
     gz_paths = sorted(public_data_dir.glob("*.gz"))
 

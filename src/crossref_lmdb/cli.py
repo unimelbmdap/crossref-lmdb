@@ -102,7 +102,7 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     create_parser.add_argument(
-        "--progress-bar",
+        "--show-progress",
         help="Enable or disable a progress bar",
         default=True,
         action=argparse.BooleanOptionalAction,
@@ -207,7 +207,7 @@ def run(args: argparse.Namespace) -> None:
             compression_level=args.compression_level,
             commit_frequency=args.commit_frequency,
             filter_path=args.filter_path,
-            progress_bar=args.progress_bar,
+            show_progress=args.show_progress,
         )
 
         crossref_lmdb.create.run(args=create_args)
