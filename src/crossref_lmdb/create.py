@@ -17,13 +17,12 @@ import simdjson
 import alive_progress
 
 import crossref_lmdb.utils
+import crossref_lmdb.filt
 
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
 
-
-FilterFunc: typing.TypeAlias = typing.Callable[[simdjson.Object], bool]
 
 
 @dataclasses.dataclass
@@ -62,20 +61,10 @@ class CreateParams:
 
         if self.filter_path is None:
             self.filter_func = None
-            return
+            return None
 
-        filter_code = self.filter_path.read_text()
-
-        filter_locals = crossref_lmdb.utils.run_code_from_text(code=filter_code)
-
-        if "filter_func" not in filter_locals:
-            raise ValueError(
-                f"No function named `filter_func` present in {self.filter_path}"
-            )
-
-        self.filter_func = typing.cast(
-            FilterFunc,
-            filter_locals["filter_func"],
+        self.filter_func = crossref_lmdb.filt.get_filter_func(
+            filter_path=self.filter_path
         )
 
     def validate(self) -> None:
@@ -225,7 +214,7 @@ def run(args: CreateParams) -> None:
                         msg = f"Unexpected JSON format for DOI {doi}"
                         raise ValueError(msg)
 
-                    indexed_datetime = parse_indexed_datetime(
+                    indexed_datetime = crossref_lmdb.utils.parse_indexed_datetime(
                         indexed_datetime=item_datetime_str
                     )
 
@@ -243,18 +232,11 @@ def run(args: CreateParams) -> None:
         with env.begin(write=True) as txn:
             txn.put(
                 key=b"__most_recent_indexed",
-                value=most_recent_indexed_str.encode("utf8"),
+                value=zlib.compress(
+                    most_recent_indexed_str.encode("utf8"),
+                    level=args.compression_level,
+                )
             )
-
-
-def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
-
-    if not indexed_datetime.endswith("Z"):
-        msg = f"Unexpected date format in `{indexed_datetime}`"
-        raise ValueError(msg)
-
-    return datetime.datetime.fromisoformat(indexed_datetime[:-1])
-
 
 
 def iter_public_data_items(

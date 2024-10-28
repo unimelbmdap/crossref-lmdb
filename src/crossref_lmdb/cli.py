@@ -151,11 +151,28 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     update_parser.add_argument(
-        "--filter",
+        "--filter-path",
+        type=pathlib.Path,
+        required=False,
+        help=(
+            "Path to a Python module file containing a function for filtering DOIs "
+            + "(see documentation for details)"
+        ),
+    )
+
+    update_parser.add_argument(
+        "--filter-arg",
         required=False,
         help=(
             "A Crossref web API filter string for restricting DOIs."
         ),
+    )
+
+    create_parser.add_argument(
+        "--show-progress",
+        help="Enable or disable a progress bar",
+        default=True,
+        action=argparse.BooleanOptionalAction,
     )
 
     copy_parser = subparsers.add_parser(

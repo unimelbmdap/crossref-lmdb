@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "alive-progress>=3.2.0",
+    "email-validator>=2.2.0",
     "lmdb>=1.5.1",
     "pysimdjson>=6.0.2",
 ]

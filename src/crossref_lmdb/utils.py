@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import datetime
 
-def run_code_from_text(
-    code: str,
-) -> dict[str, object]:
 
-    code_locals: dict[str, object] = {}
 
-    exec(code, {}, code_locals)
+def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
 
-    return code_locals
+    if not indexed_datetime.endswith("Z"):
+        msg = f"Unexpected date format in `{indexed_datetime}`"
+        raise ValueError(msg)
+
+    return datetime.datetime.fromisoformat(indexed_datetime[:-1])
