@@ -44,9 +44,11 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
         exc_tb: types.TracebackType | None,
     ) -> bool:
 
-        self._cursor.__exit__(exc_type, exc_val, exc_tb)
-        self._txn.__exit__(exc_type, exc_val, exc_tb)
-        self._env.__exit__(exc_type, exc_val, exc_tb)  # type: ignore[union-attr]
+        self.close(
+            exc_type=exc_type,
+            exc_val=exc_val,
+            exc_tb=exc_tb,
+        )
 
         return True
 
@@ -57,6 +59,9 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
         return n_total_entries - len(self._special_keys)
 
     def __getitem__(self, key: object) -> simdjson.Object:
+
+        if str(key).startswith("__"):
+            raise KeyError()
 
         key_str = str(key)
 
@@ -117,5 +122,13 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         return value
 
+    def close(
+        self,
+        exc_type: type[BaseException] | None = None,
+        exc_val: BaseException | None = None,
+        exc_tb: types.TracebackType | None = None,
+    ) -> None:
 
-
+        self._cursor.__exit__(exc_type, exc_val, exc_tb)
+        self._txn.__exit__(exc_type, exc_val, exc_tb)
+        self._env.__exit__(exc_type, exc_val, exc_tb)  # type: ignore[union-attr]

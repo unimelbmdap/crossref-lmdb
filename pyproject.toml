@@ -9,6 +9,9 @@ dependencies = [
     "email-validator>=2.2.0",
     "lmdb>=1.5.1",
     "pysimdjson>=6.0.2",
+    "requests>=2.32.3",
+    "requests-ratelimiter>=0.7.0",
+    "retryhttp>=1.1.0",
 ]
 
 [project.scripts]
@@ -42,6 +45,7 @@ dev-dependencies = [
   "repo-review>=0.11.2",
   "ruff>=0.6.7",
   "sp-repo-review[cli]>=2024.8.19",
+  "types-requests>=2.32.0.20241016",
 ]
 
 # until uv gets a task runner
