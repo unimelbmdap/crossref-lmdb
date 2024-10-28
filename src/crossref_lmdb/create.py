@@ -180,7 +180,7 @@ def run(args: CreateParams) -> None:
                         LOGGER.warning(f"No DOI found in item {item_bytes.decode()}")
                         continue
 
-                    doi_bytes = doi.encode("utf8")
+                    doi_bytes = doi.encode()
 
                     item_compressed = zlib.compress(
                         item_bytes,
@@ -233,7 +233,7 @@ def run(args: CreateParams) -> None:
             txn.put(
                 key=b"__most_recent_indexed",
                 value=zlib.compress(
-                    most_recent_indexed_str.encode("utf8"),
+                    most_recent_indexed_str.encode(),
                     level=args.compression_level,
                 )
             )
