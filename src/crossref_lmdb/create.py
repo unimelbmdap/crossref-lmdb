@@ -20,8 +20,7 @@ import crossref_lmdb.utils
 import crossref_lmdb.filt
 
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+LOGGER = logging.getLogger("crossref_lmdb")
 
 
 
@@ -34,7 +33,7 @@ class CreateParams:
     commit_frequency: int = 1_000
     filter_path: pathlib.Path | None = None
     show_progress: bool = True
-    filter_func: FilterFunc | None = dataclasses.field(init=False)
+    filter_func: crossref_lmdb.filt.FilterFunc | None = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         self.validate()
@@ -241,7 +240,7 @@ def run(args: CreateParams) -> None:
 
 def iter_public_data_items(
     public_data_dir: pathlib.Path,
-    filter_func: FilterFunc | None = None,
+    filter_func: crossref_lmdb.filt.FilterFunc | None = None,
     show_progress: bool = True,
 ) -> typing.Iterator[simdjson.Object]:
 
@@ -273,18 +272,9 @@ def iter_public_data_items(
                 if not isinstance(json_items, simdjson.Array):
                     raise ValueError(json_error_msg)
 
-                for json_item in json_items:
-
-                    if not isinstance(json_item, simdjson.Object):
-                        raise ValueError(json_error_msg)
-
-                    if json_item.get("DOI", None) is None:
-                        continue
-
-                    if filter_func is not None and not filter_func(json_item):
-                        LOGGER.debug(f"Filtered out item {json_item.mini}")
-                        continue
-
-                    yield json_item
+                yield from crossref_lmdb.utils.iter_items(
+                    items=json_items,
+                    filter_func=filter_func,
+                )
 
                 progress_bar()

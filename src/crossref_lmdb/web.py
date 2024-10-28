@@ -14,8 +14,7 @@ import retryhttp  # type: ignore[import-untyped]
 
 import crossref_lmdb
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+LOGGER = logging.getLogger("crossref_lmdb")
 
 DEFAULT_LIMITER = pyrate_limiter.Limiter(
     pyrate_limiter.RequestRate(
@@ -116,13 +115,6 @@ class CrossRefWebAPI:
             headers={"User-Agent": self.user_agent},
         )
 
-        self.default_limit = pyrate_limiter.Limiter(
-            pyrate_limiter.RequestRate(
-                limit=50,
-                interval=1
-            )
-        )
-
     @property
     def user_agent(self) -> str:
         """
@@ -141,14 +133,10 @@ class CrossRefWebAPI:
 
         return lib_name
 
-    def get_rate_limit(self) -> pyrate_limiter.Limiter:
+    def set_rate_limit(self) -> None:
         """
         Determine the API rate limits by sending a test request and inspecting
         the response headers.
-
-        Returns
-        -------
-            A limiter with the settings applied.
         """
 
         default_msg = "Rate limit could not be identified; using defaults"
@@ -157,19 +145,19 @@ class CrossRefWebAPI:
             response = self._session.get(url=self.base_url)
         except Exception:
             LOGGER.warning(default_msg)
-            return self.default_limit
+            return
 
         if (
             "x-ratelimit-limit" not in response.headers
             or "x-ratelimit-interval" not in response.headers
         ):
             LOGGER.warning(default_msg)
-            return self.default_limit
+            return
 
         n_calls = int(response.headers["x-ratelimit-limit"])
         period_s = int(response.headers["x-ratelimit-interval"][:-1])
 
-        limit = pyrate_limiter.Limiter(
+        limiter = pyrate_limiter.Limiter(
             pyrate_limiter.RequestRate(
                 limit=n_calls,
                 interval=period_s
@@ -180,7 +168,10 @@ class CrossRefWebAPI:
             f"Set CrossRef rate limits to {n_calls} calls per {period_s} s"
         )
 
-        return limit
+        self._session = WebRequester(
+            headers={"User-Agent": self.user_agent},
+            limiter=limiter,
+        )
 
     def call(
         self,
