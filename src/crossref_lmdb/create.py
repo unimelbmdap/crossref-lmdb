@@ -171,29 +171,12 @@ def run(args: CreateParams) -> None:
                         has_more_items = False
                         break
 
-                    item_bytes = typing.cast(bytes, item.mini)
-
-                    try:
-                        doi = str(item["DOI"])
-                    except KeyError:
-                        LOGGER.warning(f"No DOI found in item {item_bytes.decode()}")
-                        continue
-
-                    doi_bytes = doi.encode()
-
-                    item_compressed = zlib.compress(
-                        item_bytes,
-                        level=args.compression_level,
-                    )
-
-                    success = txn.put(
-                        key=doi_bytes,
-                        value=item_compressed,
+                    (doi, _) = crossref_lmdb.utils.insert_item(
+                        item=item,
+                        txn=txn,
+                        compression_level=args.compression_level,
                         overwrite=False,
                     )
-
-                    if not success:
-                        LOGGER.warning(f"DOI {doi} already present in database")
 
                     try:
                         item_indexed = item["indexed"]
