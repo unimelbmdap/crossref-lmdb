@@ -10,10 +10,10 @@ import logging
 import sys
 
 import crossref_lmdb.create
+import crossref_lmdb.update
 
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+LOGGER = logging.getLogger("crossref-lmdb")
 
 
 def main() -> None:
@@ -53,6 +53,12 @@ def setup_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    update_parser = subparsers.add_parser(
+        "update",
+        help="Update a Lighting database with new data from the web API",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
     create_parser.add_argument(
         "--public-data-dir",
         type=pathlib.Path,
@@ -67,18 +73,36 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Path to the directory to write the database files",
     )
 
-    create_parser.add_argument(
-        "--compression-level",
-        type=int,
-        required=False,
-        choices=list(range(-1, 10)),
-        default=-1,
-        help=(
-            "Level of compression to use for metadata; 0 is no compression, -1 is "
-            + "the default level of compression (6), and between 1 and 9 is the "
-            + "level where 1 is the least and 9 is the most"
-        ),
-    )
+    for subparser in (create_parser, update_parser):
+        subparser.add_argument(
+            "--compression-level",
+            type=int,
+            required=False,
+            choices=list(range(-1, 10)),
+            default=-1,
+            help=(
+                "Level of compression to use for metadata; 0 is no compression, -1 is "
+                + "the default level of compression (6), and between 1 and 9 is the "
+                + "level where 1 is the least and 9 is the most"
+            ),
+        )
+
+        subparser.add_argument(
+            "--filter-path",
+            type=pathlib.Path,
+            required=False,
+            help=(
+                "Path to a Python module file containing a function for filtering DOIs "
+                + "(see documentation for details)"
+            ),
+        )
+
+        subparser.add_argument(
+            "--show-progress",
+            help="Enable or disable a progress bar",
+            default=True,
+            action=argparse.BooleanOptionalAction,
+        )
 
     create_parser.add_argument(
         "--commit-frequency",
@@ -92,23 +116,6 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     create_parser.add_argument(
-        "--filter-path",
-        type=pathlib.Path,
-        required=False,
-        help=(
-            "Path to a Python module file containing a function for filtering DOIs "
-            + "(see documentation for details)"
-        ),
-    )
-
-    create_parser.add_argument(
-        "--show-progress",
-        help="Enable or disable a progress bar",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-    )
-
-    create_parser.add_argument(
         "--max-db-size-gb",
         type=float,
         default="2000",
@@ -116,19 +123,6 @@ def setup_parser() -> argparse.ArgumentParser:
             "Maximum size that the database can grow to, in GB units. "
             + "See the documentation for details."
         )
-    )
-
-    update_parser = subparsers.add_parser(
-        "update",
-        help="Update a Lighting database with new data from the web API",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    update_parser.add_argument(
-        "--db-dir",
-        type=pathlib.Path,
-        required=True,
-        help="Path to the directory containing the database files",
     )
 
     update_parser.add_argument(
@@ -151,55 +145,11 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     update_parser.add_argument(
-        "--filter-path",
-        type=pathlib.Path,
-        required=False,
-        help=(
-            "Path to a Python module file containing a function for filtering DOIs "
-            + "(see documentation for details)"
-        ),
-    )
-
-    update_parser.add_argument(
         "--filter-arg",
         required=False,
         help=(
             "A Crossref web API filter string for restricting DOIs."
         ),
-    )
-
-    create_parser.add_argument(
-        "--show-progress",
-        help="Enable or disable a progress bar",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-    )
-
-    copy_parser = subparsers.add_parser(
-        "copy",
-        help="Copy a Lightning database from one location to another",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    copy_parser.add_argument(
-        "--src-db-dir",
-        type=pathlib.Path,
-        required=True,
-        help="Path to the directory containing the source database files",
-    )
-
-    copy_parser.add_argument(
-        "--dst-db-dir",
-        type=pathlib.Path,
-        required=True,
-        help="Path to the destination directory for the database files",
-    )
-
-    copy_parser.add_argument(
-        "--compact",
-        help="Enable or disable compacting the database while copying",
-        default=True,
-        action=argparse.BooleanOptionalAction,
     )
 
     return parser
@@ -213,7 +163,6 @@ def run(args: argparse.Namespace) -> None:
         return
 
     LOGGER.debug(f"Running command with arguments: {args}")
-
 
     if args.command == "create":
 
@@ -230,23 +179,19 @@ def run(args: argparse.Namespace) -> None:
         crossref_lmdb.create.run(args=create_args)
 
     elif args.command == "update":
-        run_update(args=args)
 
-    elif args.command == "copy":
-        run_copy(args=args)
+        update_args = crossref_lmdb.update.UpdateParams(
+            db_dir=args.db_dir,
+            email_address=args.email_address,
+            from_date=args.from_date,
+            compression_level=args.compression_level,
+            filter_path=args.filter_path,
+            filter_arg=args.filter_arg,
+            show_progress=args.show_progress,
+        )
+
+        crossref_lmdb.update.run(args=update_args)
 
     else:
         raise ValueError(f"Unexpected command: {args.command}")
-
-
-def run_create(args: argparse.Namespace) -> None:
-    pass
-
-
-def run_update(args: argparse.Namespace) -> None:
-    pass
-
-
-def run_copy(args: argparse.Namespace) -> None:
-    pass
 
