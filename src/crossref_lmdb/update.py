@@ -32,11 +32,29 @@ class UpdateParams:
     db_dir: pathlib.Path
     email_address: str
     from_date: str | None = None
+    max_db_size_gb: float = 2000.0
     filter_path: pathlib.Path | None = None
     filter_arg: str | None = None
     compression_level: int = -1
     show_progress: bool = True
     filter_func: crossref_lmdb.filt.FilterFunc | None = dataclasses.field(init=False)
+
+    @property
+    def max_db_size_bytes(self) -> int:
+
+        multiplier = (
+            1000  # MB
+            * 1000  # KB
+            * 1000  # B
+        )
+
+        n_bytes = self.max_db_size_gb * multiplier
+
+        if not n_bytes.is_integer():
+            msg = f"Unexpected number of bytes: {n_bytes}"
+            raise ValueError(msg)
+
+        return int(n_bytes)
 
     def __post_init__(self) -> None:
         self.validate()
@@ -87,6 +105,11 @@ class UpdateParams:
                 errors.append(
                     f"From date `{self.from_date}` not in a valid format"
                 )
+
+        if self.max_db_size_gb <= 0:
+            errors.append(
+                f"Invalid maximum database size ({self.max_db_size_gb})"
+            )
 
         if self.compression_level not in list(range(-1, 9 + 1)):
             errors.append(
@@ -165,6 +188,7 @@ def run(args: UpdateParams) -> None:
     with lmdb.Environment(
         path=str(args.db_dir),
         readonly=False,
+        map_size=args.max_db_size_bytes,
     ) as env:
 
         with alive_progress.alive_bar(
