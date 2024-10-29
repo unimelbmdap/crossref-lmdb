@@ -219,7 +219,7 @@ def iter_public_data_items(
     # the raw data filenames; need to convert them to integers instead
     gz_paths = sorted(
         public_data_dir.glob("*.json.gz"),
-        key: lambda x: int(x.name[:-len(".json.gz")]),
+        key=lambda x: int(x.name[:-len(".json.gz")]),
     )
 
     n_paths = len(gz_paths)
