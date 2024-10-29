@@ -18,6 +18,7 @@ import alive_progress
 
 import crossref_lmdb.utils
 import crossref_lmdb.filt
+import crossref_lmdb.items
 
 
 LOGGER = logging.getLogger("crossref_lmdb")
@@ -145,9 +146,7 @@ def run(args: CreateParams) -> None:
         subdir=True,
     ) as env:
 
-        LOGGER.info(
-            f"Created LMDB database at {args.db_dir}"
-        )
+        LOGGER.info(f"Created LMDB database at {args.db_dir}")
 
         item_iterator = iter_public_data_items(
             public_data_dir=args.public_data_dir,
@@ -171,7 +170,7 @@ def run(args: CreateParams) -> None:
                         has_more_items = False
                         break
 
-                    (doi, _) = crossref_lmdb.utils.insert_item(
+                    (doi, _) = crossref_lmdb.items.insert_item(
                         item=item,
                         txn=txn,
                         compression_level=args.compression_level,
@@ -179,28 +178,16 @@ def run(args: CreateParams) -> None:
                     )
 
                     try:
-                        item_indexed = item["indexed"]
-                    except KeyError:
-                        LOGGER.warning(f"No indexed date for DOI {doi}")
-
-                    if not isinstance(item_indexed, simdjson.Object):
+                        indexed_datetime = crossref_lmdb.items.get_indexed_datetime(
+                            item=item
+                        )
+                    except ValueError as err:
                         msg = f"Unexpected JSON format for DOI {doi}"
-                        raise ValueError(msg)
+                        raise ValueError(msg) from err
 
-                    try:
-                        item_datetime_str = item_indexed["date-time"]
-                    except KeyError:
+                    if indexed_datetime is None:
                         LOGGER.warning(f"No indexed date for DOI {doi}")
-
-                    if not isinstance(item_datetime_str, str):
-                        msg = f"Unexpected JSON format for DOI {doi}"
-                        raise ValueError(msg)
-
-                    indexed_datetime = crossref_lmdb.utils.parse_indexed_datetime(
-                        indexed_datetime=item_datetime_str
-                    )
-
-                    if indexed_datetime > most_recent_indexed:
+                    elif indexed_datetime > most_recent_indexed:
                         most_recent_indexed = indexed_datetime
 
                     counter += 1
@@ -231,8 +218,6 @@ def iter_public_data_items(
 
     n_paths = len(gz_paths)
 
-    json_error_msg = "Invalid JSON"
-
     with alive_progress.alive_bar(
         total=n_paths,
         disable=not show_progress,
@@ -244,18 +229,11 @@ def iter_public_data_items(
 
                 data = handle.read()
 
-                parser = simdjson.Parser()
+                json_items = crossref_lmdb.items.prepare_json_items(
+                    data=data
+                )
 
-                json_data = parser.parse(data)
-
-                if not isinstance(json_data, simdjson.Object):
-                    raise ValueError(json_error_msg)
-
-                json_items = json_data["items"]
-                if not isinstance(json_items, simdjson.Array):
-                    raise ValueError(json_error_msg)
-
-                yield from crossref_lmdb.utils.iter_items(
+                yield from crossref_lmdb.items.iter_items(
                     items=json_items,
                     filter_func=filter_func,
                 )

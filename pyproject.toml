@@ -51,7 +51,7 @@ dev-dependencies = [
 # until uv gets a task runner
 [tool.poe.tasks]
 test = "uv run pytest --cov --cov-report term-missing"
-typecheck = "uv run mypy ."
+typecheck = "uv run --dev mypy ."
 lint = "ruff check"
 style = "black ."
 repo-review = "repo-review"
@@ -121,6 +121,7 @@ exclude = ["docs", "tests"]
 module = [
   "lmdb.*",
   "alive_progress.*",
+  "simdjson.*",
 ]
 ignore_missing_imports = true
 
