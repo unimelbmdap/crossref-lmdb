@@ -233,6 +233,9 @@ def run(args: UpdateParams) -> None:
 
                 more_pages = n_items > 0
 
+                if not more_pages:
+                    break
+
                 cursor = str(message["next-cursor"])
 
                 with env.begin(write=True) as txn:

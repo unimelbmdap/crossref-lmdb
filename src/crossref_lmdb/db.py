@@ -30,7 +30,10 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
             readonly=True,
         ).__enter__()
 
-        self._txn = self._env.begin(write=False).__enter__()
+        self._txn = self._env.begin(
+            write=False,
+            buffers=True,
+        ).__enter__()
 
         self._cursor = self._txn.cursor().__enter__()
 
@@ -95,7 +98,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
             if not self._has_more:
                 raise StopIteration()
 
-            key = self._cursor.key().decode()
+            key = bytes(self._cursor.key()).decode()
 
             self._has_more = self._cursor.next()
 
