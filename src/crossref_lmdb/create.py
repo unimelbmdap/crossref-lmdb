@@ -214,7 +214,13 @@ def iter_public_data_items(
     show_progress: bool = True,
 ) -> typing.Iterator[simdjson.Object]:
 
-    gz_paths = sorted(public_data_dir.glob("*.gz"))
+    # just a bare sorted doesn't sort in numerical order for the
+    # 0, 1, ..., 10, 11, ..., 100, 101, ... convention used in
+    # the raw data filenames; need to convert them to integers instead
+    gz_paths = sorted(
+        public_data_dir.glob("*.json.gz"),
+        key: lambda x: int(x.name[:-len(".json.gz")]),
+    )
 
     n_paths = len(gz_paths)
 
