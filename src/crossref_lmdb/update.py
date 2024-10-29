@@ -21,6 +21,7 @@ import alive_progress
 
 import crossref_lmdb.utils
 import crossref_lmdb.filt
+import crossref_lmdb.web
 
 
 LOGGER = logging.getLogger("crossref_lmdb")
@@ -169,7 +170,7 @@ def run(args: UpdateParams) -> None:
         with alive_progress.alive_bar(
             total=n_pages,
             disable=not args.show_progress,
-            units="pages",
+            unit="pages",
         ) as progress_bar:
 
             cursor = "*"
@@ -288,7 +289,7 @@ def form_query(
 
     order: str | None = (
         "order=asc"
-        if order
+        if sort_results
         else None
     )
 

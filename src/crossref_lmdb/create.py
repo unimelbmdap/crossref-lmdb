@@ -146,6 +146,8 @@ def run(args: CreateParams) -> None:
         subdir=True,
     ) as env:
 
+        LOGGER.info(f"Map size: {env.info()}")
+
         LOGGER.info(f"Created LMDB database at {args.db_dir}")
 
         item_iterator = iter_public_data_items(

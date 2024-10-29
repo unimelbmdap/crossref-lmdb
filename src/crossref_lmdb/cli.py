@@ -126,6 +126,13 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     update_parser.add_argument(
+        "--db-dir",
+        type=pathlib.Path,
+        required=True,
+        help="Path to the directory containing the database files",
+    )
+
+    update_parser.add_argument(
         "--email-address",
         type=str,
         required=True,
