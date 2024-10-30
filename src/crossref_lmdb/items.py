@@ -16,6 +16,7 @@ import simdjson
 import alive_progress
 
 import crossref_lmdb.filt
+import crossref_lmdb.utils
 
 LOGGER = logging.getLogger("crossref_lmdb")
 
@@ -70,6 +71,7 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
                 for item in json_items:
 
                     if not isinstance(item, simdjson.Object):
+                        LOGGER.error("Invalid JSON")
                         raise ValueError("Invalid JSON")
 
                     if item.get("DOI", None) is None:
@@ -156,7 +158,7 @@ def get_indexed_datetime(
         return None
 
     if not isinstance(item_indexed, simdjson.Object):
-        raise ValueError()
+        raise ValueError("A")
 
     try:
         item_datetime_str = item_indexed["date-time"]
@@ -164,7 +166,7 @@ def get_indexed_datetime(
         return None
 
     if not isinstance(item_datetime_str, str):
-        raise ValueError()
+        raise ValueError("B")
 
     indexed_datetime = crossref_lmdb.utils.parse_indexed_datetime(
         indexed_datetime=item_datetime_str

@@ -30,15 +30,15 @@ def run(
     if isinstance(params, crossref_lmdb.params.UpdateParams):
         from_date = get_from_date(params=params)
 
-    most_recent_indexed: datetime.datetime
+    most_recent_indexed = datetime.datetime(year=1900, month=1, day=1)
 
-    if not params.db_dir.exists():
-        most_recent_indexed = datetime.datetime(year=1900, month=1, day=1)
-    else:
+    try:
         with crossref_lmdb.db.DBReader(db_dir=params.db_dir) as db:
             most_recent_indexed = datetime.datetime.fromisoformat(
                 db.most_recent_indexed
             )
+    except Exception as err:
+        pass
 
     with lmdb.Environment(
         path=str(params.db_dir),
