@@ -83,7 +83,6 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
                         LOGGER.debug(f"Filtered out item {item_bytes.decode()}")
 
                     else:
-
                         yield item
 
                 progress_bar()
@@ -145,9 +144,6 @@ def prepare_json_items(data: bytes) -> simdjson.Array:
         raise ValueError(json_error_msg)
 
     return json_items
-
-
-
 
 
 def get_indexed_datetime(

@@ -360,6 +360,7 @@ dependencies = [
     { name = "requests" },
     { name = "requests-ratelimiter" },
     { name = "retryhttp" },
+    { name = "tenacity" },
 ]
 
 [package.optional-dependencies]
@@ -407,6 +408,7 @@ requires-dist = [
     { name = "sphinx-autobuild", marker = "extra == 'docs'", specifier = ">=2024.10.3" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'", specifier = ">=2.4.4" },
     { name = "sphinx-toolbox", marker = "extra == 'docs'", specifier = ">=3.8.0" },
+    { name = "tenacity", specifier = ">=9.0.0" },
 ]
 
 [package.metadata.requires-dev]
