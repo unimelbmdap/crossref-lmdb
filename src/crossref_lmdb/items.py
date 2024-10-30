@@ -89,50 +89,6 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
                 progress_bar()
 
 
-class FileSource(ItemSource):
-
-    def __init__(
-        self,
-        public_data_dir: pathlib.Path,
-        show_progress: bool,
-        filter_func: crossref_lmdb.filt.FilterFunc | None,
-    ) -> None:
-
-        self.public_data_dir = public_data_dir
-        self._show_progress = show_progress
-
-        self.gz_paths = sorted(
-            self.public_data_dir.glob("*.json.gz"),
-            key=lambda x: int(x.name[:-len(".json.gz")]),
-        )
-
-        self._filter_func = filter_func
-
-    @property
-    def total_items(self) -> int:
-        return len(self.gz_paths)
-
-    @property
-    def total_units(self) -> str:
-        return "gz_files"
-
-    @property
-    def show_progress(self) -> bool:
-        return self._show_progress
-
-    @property
-    def filter_func(self) -> crossref_lmdb.filt.FilterFunc | None:
-        return self._filter_func
-
-    def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]:
-
-        for gz_path in self.gz_paths:
-
-            with gzip.open(gz_path, "rb") as handle:
-
-                data = handle.read()
-
-                yield data
 
 
 def insert_item(
