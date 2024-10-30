@@ -18,6 +18,7 @@ import crossref_lmdb.web
 import crossref_lmdb.file
 import crossref_lmdb.items
 import crossref_lmdb.db
+import crossref_lmdb.date
 
 
 LOGGER = logging.getLogger("crossref_lmdb")
@@ -132,7 +133,7 @@ class Inserter:
             value=item_compressed,
         )
 
-        indexed_datetime = crossref_lmdb.items.get_indexed_datetime(
+        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
             item=item
         )
 

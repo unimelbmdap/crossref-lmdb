@@ -9,6 +9,32 @@ import simdjson
 LOGGER = logging.getLogger("crossref_lmdb")
 
 
+def get_indexed_datetime(
+    item: simdjson.Object
+) -> datetime.datetime | None:
+
+    try:
+        item_indexed = item["indexed"]
+    except KeyError:
+        return None
+
+    if not isinstance(item_indexed, simdjson.Object):
+        raise ValueError()
+
+    try:
+        item_datetime_str = item_indexed["date-time"]
+    except KeyError:
+        return None
+
+    if not isinstance(item_datetime_str, str):
+        raise ValueError()
+
+    indexed_datetime = crossref_lmdb.utils.parse_indexed_datetime(
+        indexed_datetime=item_datetime_str
+    )
+
+    return indexed_datetime
+
 
 def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
 
