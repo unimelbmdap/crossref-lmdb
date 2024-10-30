@@ -9,8 +9,7 @@ import pathlib
 import logging
 import sys
 
-import crossref_lmdb.create
-import crossref_lmdb.update
+import crossref_lmdb.params
 
 
 LOGGER = logging.getLogger("crossref-lmdb")
@@ -73,6 +72,14 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Path to the directory to write the database files",
     )
 
+    create_parser.add_argument(
+        "--start-from-file-num",
+        type=int,
+        required=False,
+        default=0,
+        help="Begin processing from this file number in the public data archive",
+    )
+
     for subparser in (create_parser, update_parser):
         subparser.add_argument(
             "--compression-level",
@@ -104,15 +111,15 @@ def setup_parser() -> argparse.ArgumentParser:
             action=argparse.BooleanOptionalAction,
         )
 
-    create_parser.add_argument(
-        "--max-db-size-gb",
-        type=float,
-        default=2000,
-        help=(
-            "Maximum size that the database can grow to, in GB units. "
-            + "See the documentation for details."
+        subparser.add_argument(
+            "--max-db-size-gb",
+            type=float,
+            default=2000,
+            help=(
+                "Maximum size that the database can grow to, in GB units. "
+                + "See the documentation for details."
+            )
         )
-    )
 
     update_parser.add_argument(
         "--db-dir",
@@ -162,24 +169,26 @@ def run(args: argparse.Namespace) -> None:
 
     if args.command == "create":
 
-        create_args = crossref_lmdb.create.CreateParams(
+        create_args = crossref_lmdb.params.CreateParams(
             public_data_dir=args.public_data_dir,
             db_dir=args.db_dir,
             max_db_size_gb=args.max_db_size_gb,
             compression_level=args.compression_level,
             filter_path=args.filter_path,
             show_progress=args.show_progress,
+            start_from_file_num=args.start_from_file_num,
         )
 
         crossref_lmdb.create.run(args=create_args)
 
     elif args.command == "update":
 
-        update_args = crossref_lmdb.update.UpdateParams(
+        update_args = crossref_lmdb.params.UpdateParams(
             db_dir=args.db_dir,
             email_address=args.email_address,
             from_date=args.from_date,
             compression_level=args.compression_level,
+            max_db_size_gb=args.max_db_size_gb,
             filter_path=args.filter_path,
             filter_arg=args.filter_arg,
             show_progress=args.show_progress,

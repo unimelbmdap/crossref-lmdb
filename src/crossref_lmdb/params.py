@@ -142,6 +142,7 @@ class UpdateParams(Params):
 @dataclasses.dataclass
 class CreateParams(Params):
     public_data_dir: pathlib.Path
+    start_from_file_num: int
 
     def validate(self) -> None:
 
