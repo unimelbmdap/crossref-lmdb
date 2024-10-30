@@ -29,7 +29,7 @@ def get_indexed_datetime(
     if not isinstance(item_datetime_str, str):
         raise ValueError()
 
-    indexed_datetime = crossref_lmdb.utils.parse_indexed_datetime(
+    indexed_datetime = parse_indexed_datetime(
         indexed_datetime=item_datetime_str
     )
 

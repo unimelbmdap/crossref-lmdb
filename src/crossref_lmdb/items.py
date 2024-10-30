@@ -16,7 +16,7 @@ import simdjson
 import alive_progress
 
 import crossref_lmdb.filt
-import crossref_lmdb.utils
+
 
 LOGGER = logging.getLogger("crossref_lmdb")
 
@@ -88,3 +88,21 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
                         yield item
 
                 progress_bar()
+
+
+def prepare_json_items(data: bytes) -> simdjson.Array:
+
+    json_error_msg = "Invalid JSON"
+
+    parser = simdjson.Parser()
+
+    json_data = parser.parse(data)
+
+    if not isinstance(json_data, simdjson.Object):
+        raise ValueError(json_error_msg)
+
+    json_items = json_data["items"]
+    if not isinstance(json_items, simdjson.Array):
+        raise ValueError(json_error_msg)
+
+    return json_items
