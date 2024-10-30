@@ -105,20 +105,9 @@ def setup_parser() -> argparse.ArgumentParser:
         )
 
     create_parser.add_argument(
-        "--commit-frequency",
-        type=int,
-        required=False,
-        default=1_000,
-        help=(
-            "How frequently to commit additions to the database, in units of DOIs. "
-            + "Higher values should be faster, but require more memory."
-        ),
-    )
-
-    create_parser.add_argument(
         "--max-db-size-gb",
         type=float,
-        default="2000",
+        default=2000,
         help=(
             "Maximum size that the database can grow to, in GB units. "
             + "See the documentation for details."
@@ -178,7 +167,6 @@ def run(args: argparse.Namespace) -> None:
             db_dir=args.db_dir,
             max_db_size_gb=args.max_db_size_gb,
             compression_level=args.compression_level,
-            commit_frequency=args.commit_frequency,
             filter_path=args.filter_path,
             show_progress=args.show_progress,
         )

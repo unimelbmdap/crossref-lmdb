@@ -5,6 +5,9 @@ Make web requests with rate limiting and retrying.
 import collections.abc
 import functools
 import logging
+import typing
+import pathlib
+import math
 
 import requests
 import requests.utils
@@ -12,7 +15,12 @@ import requests_ratelimiter
 import pyrate_limiter
 import retryhttp  # type: ignore[import-untyped]
 
+import simdjson
+
 import crossref_lmdb
+import crossref_lmdb.items
+import crossref_lmdb.filt
+
 
 LOGGER = logging.getLogger("crossref_lmdb")
 
@@ -197,3 +205,174 @@ class CrossRefWebAPI:
         response.raise_for_status()
 
         return response
+
+
+class WebSource(crossref_lmdb.items.ItemSource):
+
+    def __init__(
+        self,
+        email_address: str,
+        from_date: str,
+        show_progress: bool,
+        filter_func: crossref_lmdb.filt.FilterFunc | None,
+        filter_arg: str | None,
+    ) -> None:
+
+        self.email_address = email_address
+        self._show_progress = show_progress
+        self._filter_func = filter_func
+        self.from_date = from_date
+        self.filter_arg = filter_arg
+
+        self._total_items: int | None = None
+
+        self.n_rows = 500
+
+        self.client = CrossRefWebAPI(email_address=self.email_address)
+
+        self.client.set_rate_limit()
+
+
+    @property
+    def total_items(self) -> int:
+        if self._total_items is None:
+            self._total_items = self._request_total_items()
+
+        if self._total_items is None:
+            raise ValueError()
+
+        return self._total_items
+
+    @property
+    def total_units(self) -> str:
+        return "pages"
+
+    @property
+    def show_progress(self) -> bool:
+        return self._show_progress
+
+    @property
+    def filter_func(self) -> crossref_lmdb.filt.FilterFunc | None:
+        return self._filter_func
+
+    def _request_total_items(self) -> int:
+
+        # do an initial brief query to get a total
+        total_query = self.form_query(
+            from_date=self.from_date,
+            filter_arg=self.filter_arg,
+            cursor="*",
+            only_doi=True,
+            n_rows=1,
+        )
+
+        total_response = self.client.call(query=total_query)
+
+        total_message = total_response.json()["message"]
+
+        total_results: int = total_message["total-results"]
+        total_msg = (
+            f"A total of {total_results:,} items have been updated "
+            + f"since {self.from_date}"
+        )
+
+        n_pages = math.ceil(total_results / self.n_rows)
+
+        return n_pages
+
+    def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]:
+
+        cursor = "*"
+
+        more_pages = True
+
+        while more_pages:
+
+            query = self.form_query(
+                from_date=self.from_date,
+                filter_arg=self.filter_arg,
+                cursor=cursor,
+                n_rows=self.n_rows,
+            )
+
+            response = self.client.call(query=query)
+
+            parser = simdjson.Parser()
+
+            data = parser.parse(response.content)
+
+            if not isinstance(data, simdjson.Object):
+                raise ValueError()
+
+            message = data["message"]
+
+            if not isinstance(message, simdjson.Object):
+                raise ValueError()
+
+            message_bytes = typing.cast(
+                bytes,
+                message.mini,
+            )
+
+            yield message_bytes
+
+            items = message["items"]
+
+            if not isinstance(items, simdjson.Array):
+                raise ValueError
+
+            n_items = len(items)
+
+            more_pages = n_items > 0
+
+            if not more_pages:
+                break
+
+            cursor = str(message["next-cursor"])
+
+    @staticmethod
+    def form_query(
+        from_date: str,
+        filter_arg: str | None = None,
+        n_rows: int = 500,
+        cursor: str = "*",
+        only_doi: bool = False,
+        sort_results: bool = True,
+    ) -> str:
+
+        query = "works?"
+
+        filt = f"filter=from-index-date:{from_date}"
+
+        if filter_arg is not None:
+            filt += "," + filter_arg
+
+        rows = f"rows={n_rows}"
+
+        cursor = f"cursor={cursor}"
+
+        select = (
+            "select=DOI"
+            if only_doi
+            else None
+        )
+
+        sort: str | None = (
+            "sort=indexed"
+            if sort_results
+            else None
+        )
+
+        order: str | None = (
+            "order=asc"
+            if sort_results
+            else None
+        )
+
+        params = [
+            param
+            for param in (filt, rows, cursor, select, sort, order)
+            if param is not None
+        ]
+
+        return query + "&".join(params)
