@@ -10,6 +10,7 @@ import logging
 import sys
 
 import crossref_lmdb.params
+import crossref_lmdb.main
 
 
 LOGGER = logging.getLogger("crossref-lmdb")
@@ -81,6 +82,18 @@ def setup_parser() -> argparse.ArgumentParser:
     )
 
     for subparser in (create_parser, update_parser):
+
+        subparser.add_argument(
+            "--commit-frequency",
+            type=int,
+            required=False,
+            default=1_000,
+            help=(
+                "How often to commit changes to the database, in units of number "
+                + "of items"
+            ),
+        )
+
         subparser.add_argument(
             "--compression-level",
             type=int,
@@ -167,26 +180,28 @@ def run(args: argparse.Namespace) -> None:
 
     LOGGER.debug(f"Running command with arguments: {args}")
 
+    action_args: crossref_lmdb.params.CreateParams | crossref_lmdb.params.UpdateParams
+
     if args.command == "create":
 
-        create_args = crossref_lmdb.params.CreateParams(
+        action_args = crossref_lmdb.params.CreateParams(
             public_data_dir=args.public_data_dir,
             db_dir=args.db_dir,
             max_db_size_gb=args.max_db_size_gb,
+            commit_frequency=args.commit_frequency,
             compression_level=args.compression_level,
             filter_path=args.filter_path,
             show_progress=args.show_progress,
             start_from_file_num=args.start_from_file_num,
         )
 
-        crossref_lmdb.create.run(args=create_args)
-
     elif args.command == "update":
 
-        update_args = crossref_lmdb.params.UpdateParams(
+        action_args = crossref_lmdb.params.UpdateParams(
             db_dir=args.db_dir,
             email_address=args.email_address,
             from_date=args.from_date,
+            commit_frequency=args.commit_frequency,
             compression_level=args.compression_level,
             max_db_size_gb=args.max_db_size_gb,
             filter_path=args.filter_path,
@@ -194,8 +209,7 @@ def run(args: argparse.Namespace) -> None:
             show_progress=args.show_progress,
         )
 
-        crossref_lmdb.update.run(args=update_args)
-
     else:
         raise ValueError(f"Unexpected command: {args.command}")
 
+    crossref_lmdb.main.run(params=action_args)

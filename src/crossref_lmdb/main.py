@@ -5,6 +5,7 @@ import typing
 import datetime
 import logging
 import zlib
+import types
 
 import lmdb
 
@@ -28,6 +29,16 @@ def run(
 
     if isinstance(params, crossref_lmdb.params.UpdateParams):
         from_date = get_from_date(params=params)
+
+    most_recent_indexed: datetime.datetime
+
+    if not params.db_dir.exists():
+        most_recent_indexed = datetime.datetime(year=1900, month=1, day=1)
+    else:
+        with crossref_lmdb.db.DBReader(db_dir=params.db_dir) as db:
+            most_recent_indexed = datetime.datetime.fromisoformat(
+                db.most_recent_indexed
+            )
 
     with lmdb.Environment(
         path=str(params.db_dir),
@@ -55,9 +66,15 @@ def run(
 
         item_iterator = item_source.iter_item()
 
-        for item in item_iterator:
-            # TODO
-            pass
+        with Inserter(
+            env=env,
+            commit_frequency=params.commit_frequency,
+            compression_level=params.compression_level,
+            most_recent_indexed=most_recent_indexed,
+        ) as item_inserter:
+
+            for item in item_iterator:
+                item_inserter.insert_item(item=item)
 
 
 class Inserter:
@@ -67,12 +84,31 @@ class Inserter:
         env: lmdb.Environment,
         commit_frequency: int,
         compression_level: int,
+        most_recent_indexed: datetime.datetime,
     ) -> None:
+
         self.env = env
         self.commit_frequency = commit_frequency
         self.compression_level = compression_level
+        self.most_recent_indexed = most_recent_indexed
+
         self.txn: lmdb.Transaction | None = None
         self.item_count = 0
+
+    def __enter__(self) -> Inserter:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
+    ) -> bool:
+
+        if self.txn is not None:
+            self.commit()
+
+        return True
 
     def insert_item(self, item: simdjson.Object) -> None:
 
@@ -96,6 +132,27 @@ class Inserter:
             value=item_compressed,
         )
 
+        indexed_datetime = crossref_lmdb.items.get_indexed_datetime(
+            item=item
+        )
+
+        if indexed_datetime is None:
+            LOGGER.warning(f"No indexed date for DOI {doi}")
+
+        elif indexed_datetime > self.most_recent_indexed:
+
+            most_recent_indexed_str = indexed_datetime.isoformat()
+
+            self.insert(
+                key=b"__most_recent_indexed",
+                value=zlib.compress(
+                    most_recent_indexed_str.encode(),
+                    level=self.compression_level,
+                ),
+            )
+
+            self.most_recent_indexed = indexed_datetime
+
     def insert(
         self,
         key: bytes,
@@ -115,7 +172,7 @@ class Inserter:
 
         self.item_count += 1
 
-        if self.item_count % commit_frequency == 0:
+        if self.item_count % self.commit_frequency == 0:
             self.commit()
             self.txn = None
 
@@ -128,7 +185,6 @@ class Inserter:
     def commit(self) -> None:
         if self.txn is None:
             raise ValueError()
-
         self.txn.commit()
 
     def init_txn(self) -> None:

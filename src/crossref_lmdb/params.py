@@ -17,6 +17,7 @@ class Params(abc.ABC):
     filter_path: pathlib.Path | None
     compression_level: int
     show_progress: bool
+    commit_frequency: int
     filter_func: crossref_lmdb.filt.FilterFunc | None = dataclasses.field(init=False)
 
     @property
@@ -30,7 +31,7 @@ class Params(abc.ABC):
 
         n_bytes = self.max_db_size_gb * multiplier
 
-        if not n_bytes.is_integer():
+        if not isinstance(n_bytes, int) and not n_bytes.is_integer():
             msg = f"Unexpected number of bytes: {n_bytes}"
             raise ValueError(msg)
 
