@@ -1,3 +1,7 @@
+"""
+Miscellaneous date-handling utility functions.
+"""
+
 from __future__ import annotations
 
 import datetime
@@ -47,26 +51,33 @@ def parse_indexed_datetime(indexed_datetime: str) -> datetime.datetime:
 
 def get_published_date(item: simdjson.Object) -> datetime.date | None:
 
-    assert isinstance(item, simdjson.Object)
+    json_msg = "Unexpected JSON format"
+
+    if not isinstance(item, simdjson.Object):
+        raise ValueError(json_msg)
 
     try:
         published = item["published"]
     except KeyError:
         return None
 
+    if not isinstance(published, simdjson.Object):
+        raise ValueError(json_msg)
+
     try:
-        assert isinstance(published, simdjson.Object)
         date_parts = published["date-parts"]
     except KeyError:
         return None
 
-    assert isinstance(date_parts, simdjson.Array)
+    if not isinstance(date_parts, simdjson.Array):
+        raise ValueError(json_msg)
 
     dates: list[datetime.date] = []
 
     for raw_date_parts in date_parts:
 
-        assert isinstance(raw_date_parts, simdjson.Array)
+        if not isinstance(raw_date_parts, simdjson.Array):
+            raise ValueError(json_msg)
 
         if len(raw_date_parts) == 1:
             (year,) = typing.cast(tuple[int], raw_date_parts)
