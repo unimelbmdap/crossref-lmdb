@@ -3,9 +3,13 @@ from __future__ import annotations
 import pathlib
 import gzip
 import typing
+import logging
 
 import crossref_lmdb.items
 import crossref_lmdb.filt
+
+
+LOGGER = logging.getLogger("crossref_lmdb")
 
 
 class FileSource(crossref_lmdb.items.ItemSource):
@@ -30,7 +34,7 @@ class FileSource(crossref_lmdb.items.ItemSource):
 
     @property
     def total_items(self) -> int:
-        return len(self.gz_paths)
+        return len(self.gz_paths) - self.start_from_file_num
 
     @property
     def total_units(self) -> str:
@@ -49,6 +53,8 @@ class FileSource(crossref_lmdb.items.ItemSource):
         return int(path.name[:-len(".json.gz")])
 
     def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]:
+
+        LOGGER.info(f"Starting from file with number: {self.start_from_file_num}")
 
         for gz_path in self.gz_paths:
 

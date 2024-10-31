@@ -177,7 +177,7 @@ class Inserter:
 
     @tenacity.retry(
         wait=tenacity.wait_exponential(multiplier=1, min=4, max=10),
-        stop=tenacity.stop_after_attempt(5),
+        stop=tenacity.stop_after_attempt(20),
         retry=tenacity.retry_if_exception_type(lmdb.Error),
         after=tenacity.after_log(logger=LOGGER, log_level=logging.WARNING),
     )

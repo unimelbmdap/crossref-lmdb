@@ -56,7 +56,7 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
         with alive_progress.alive_bar(
             total=self.total_items,
             disable=not self.show_progress,
-            unit=self.total_units,
+            unit=f" {self.total_units}",
         ) as progress_bar:
 
             for data in self.iter_unfiltered_items_data():
