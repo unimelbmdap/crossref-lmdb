@@ -2,14 +2,8 @@ from __future__ import annotations
 
 import logging
 import typing
-import zlib
-import datetime
 import abc
 import collections
-import pathlib
-import gzip
-
-import lmdb
 
 import simdjson
 

@@ -6,7 +6,6 @@ import collections.abc
 import functools
 import logging
 import typing
-import pathlib
 import math
 
 import requests
@@ -275,6 +274,8 @@ class WebSource(crossref_lmdb.items.ItemSource):
             f"A total of {total_results:,} items have been updated "
             + f"since {self.from_date}"
         )
+
+        LOGGER.info(total_msg)
 
         n_pages = math.ceil(total_results / self.n_rows)
 

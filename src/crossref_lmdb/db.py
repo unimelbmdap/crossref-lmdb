@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import typing
 import types
 import pathlib
@@ -45,15 +44,13 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
-    ) -> bool:
+    ) -> None:
 
         self.close(
             exc_type=exc_type,
             exc_val=exc_val,
             exc_tb=exc_tb,
         )
-
-        return True
 
     def __len__(self) -> int:
 
@@ -109,7 +106,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         try:
             value = zlib.decompress(raw_value)
-        except zlib.error as err:
+        except zlib.error:
             value = raw_value
 
         return value

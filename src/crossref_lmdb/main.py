@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pathlib
 import typing
 import datetime
 import logging
@@ -38,7 +37,8 @@ def run(
             most_recent_indexed = datetime.datetime.fromisoformat(
                 db.most_recent_indexed
             )
-    except Exception as err:
+    except Exception:
+        LOGGER.info("No most-recently indexed item found in the database")
         pass
 
     with lmdb.Environment(
@@ -104,12 +104,10 @@ class Inserter:
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
-    ) -> bool:
+    ) -> None:
 
         if self.txn is not None:
             self.commit()
-
-        return True
 
     def insert_item(self, item: simdjson.Object) -> None:
 
