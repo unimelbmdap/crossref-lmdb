@@ -145,7 +145,7 @@ class CreateParams(Params):
     public_data_dir: pathlib.Path
     start_from_file_num: int
 
-    def validate(self) -> None:
+    def _do_validation(self) -> list[str]:
 
         errors = super()._do_validation()
 
@@ -160,3 +160,5 @@ class CreateParams(Params):
                 f"Public data directory ({self.public_data_dir}) does contain the "
                 + "expected CrossRef data"
             )
+
+        return errors
