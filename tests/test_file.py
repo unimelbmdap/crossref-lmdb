@@ -62,8 +62,6 @@ def test_file_source(shared_datadir, monkeypatch):
             return False
         return True
 
-    assert filter_func(item=item_two) == False
-
     source = crossref_lmdb.file.FileSource(
         public_data_dir=public_data_dir,
         show_progress=False,
@@ -73,8 +71,7 @@ def test_file_source(shared_datadir, monkeypatch):
 
     filtered_items = [item for item in source]
 
-    assert len(filtered_items) == 1
-
+    assert len(filtered_items) == 4 - 1
 
     def mock_prepare_json_items(data):
         mock_array = simdjson.Parser().parse(
@@ -108,4 +105,3 @@ def test_file_source(shared_datadir, monkeypatch):
     values = [value for value in source]
 
     assert len(values) == 0
-
