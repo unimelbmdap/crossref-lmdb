@@ -1,0 +1,3 @@
+.. |DOI| replace:: :abbr:`DOI (Digital Object Identifier)`
+.. |DOIs| replace:: :abbr:`DOIs (Digital Object Identifiers)`
+.. |TEI| replace:: :abbr:`TEI (Text Encoding Initiative)`

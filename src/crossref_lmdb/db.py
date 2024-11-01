@@ -17,6 +17,15 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
         self,
         db_dir: pathlib.Path,
     ) -> None:
+        """
+        A reader interface for the database.
+
+        Parameters
+        ----------
+        db_dir
+            Directory containing the database.
+
+        """
 
         self._db_dir = db_dir
 
@@ -113,6 +122,10 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
     @property
     def most_recent_indexed(self) -> str:
+        """
+        Returns the date, in YYYY-MM-DD format, of the most recently indexed
+        item in the database.
+        """
 
         key = b"__most_recent_indexed"
 
