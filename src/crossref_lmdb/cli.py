@@ -87,7 +87,7 @@ def setup_parser() -> argparse.ArgumentParser:
             "--commit-frequency",
             type=int,
             required=False,
-            default=1_000,
+            default=20_000,
             help=(
                 "How often to commit changes to the database, in units of number "
                 + "of items"

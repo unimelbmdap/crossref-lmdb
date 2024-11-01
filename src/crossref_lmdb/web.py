@@ -225,12 +225,11 @@ class WebSource(crossref_lmdb.items.ItemSource):
 
         self._total_items: int | None = None
 
-        self.n_rows = 500
+        self.n_rows = 1_000
 
         self.client = CrossRefWebAPI(email_address=self.email_address)
 
         self.client.set_rate_limit()
-
 
     @property
     def total_items(self) -> int:
@@ -265,6 +264,11 @@ class WebSource(crossref_lmdb.items.ItemSource):
             n_rows=1,
         )
 
+        LOGGER.info(
+            f"Querying the CrossRef web API using '{total_query}' to identify "
+            + "the number of update records"
+        )
+
         total_response = self.client.call(query=total_query)
 
         total_message = total_response.json()["message"]
@@ -296,7 +300,9 @@ class WebSource(crossref_lmdb.items.ItemSource):
                 n_rows=self.n_rows,
             )
 
+            LOGGER.debug("Querying CrossRef API")
             response = self.client.call(query=query)
+            LOGGER.debug("Received response from CrossRef API")
 
             parser = simdjson.Parser()
 
@@ -314,6 +320,8 @@ class WebSource(crossref_lmdb.items.ItemSource):
                 bytes,
                 message.mini,
             )
+
+            LOGGER.debug("Yielding data")
 
             yield message_bytes
 
