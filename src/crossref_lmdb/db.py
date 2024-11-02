@@ -116,7 +116,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
         try:
             value = zlib.decompress(raw_value)
         except zlib.error:
-            value = raw_value
+            value = bytes(raw_value)
 
         return value
 
