@@ -6,18 +6,12 @@ import pathlib
 import collections
 import zlib
 import datetime
-import logging
 
 import lmdb
 
 import simdjson
 
-import alive_progress
-
 import crossref_lmdb.date
-
-
-LOGGER = logging.getLogger("crossref_lmdb")
 
 
 class DBReader(collections.abc.Mapping[str, simdjson.Object]):
@@ -129,7 +123,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         return value
 
-    def get_most_recent_indexed(self, show_progress: bool = True) -> str:
+    def get_most_recent_indexed(self) -> str:
         """
         Returns the date, in YYYY-MM-DD format, of the most recently indexed
         item in the database.
@@ -137,27 +131,20 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         most_recent_indexed: datetime.datetime | None = None
 
-        with alive_progress.alive_bar(
-            total=len(self),
-            disable=not show_progress,
-        ) as progress_bar:
+        for item in self.values():
 
-            for item in self.values():
+            item_indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
+                item=item
+            )
 
-                item_indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-                    item=item
-                )
+            if item_indexed_datetime is None:
+                raise ValueError()
 
-                if item_indexed_datetime is None:
-                    raise ValueError()
-
-                if (
-                    most_recent_indexed is None
-                    or item_indexed_datetime > most_recent_indexed
-                ):
-                    most_recent_indexed = item_indexed_datetime
-
-                progress_bar()
+            if (
+                most_recent_indexed is None
+                or item_indexed_datetime > most_recent_indexed
+            ):
+                most_recent_indexed = item_indexed_datetime
 
         if most_recent_indexed is None:
             raise ValueError()
