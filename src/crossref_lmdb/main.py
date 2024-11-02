@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-import datetime
 import logging
 import zlib
 import types
@@ -29,17 +28,6 @@ def run(
 
     if isinstance(params, crossref_lmdb.params.UpdateParams):
         from_date = get_from_date(params=params)
-
-    most_recent_indexed = datetime.datetime(year=1900, month=1, day=1)
-
-    try:
-        with crossref_lmdb.db.DBReader(db_dir=params.db_dir) as db:
-            most_recent_indexed = datetime.datetime.fromisoformat(
-                db.most_recent_indexed
-            )
-    except Exception:
-        LOGGER.info("No most-recently indexed item found in the database")
-        pass
 
     with lmdb.Environment(
         path=str(params.db_dir),
@@ -71,7 +59,6 @@ def run(
             env=env,
             commit_frequency=params.commit_frequency,
             compression_level=params.compression_level,
-            most_recent_indexed=most_recent_indexed,
         ) as item_inserter:
 
             for item in item_iterator:
@@ -85,13 +72,11 @@ class Inserter:
         env: lmdb.Environment,
         commit_frequency: int,
         compression_level: int,
-        most_recent_indexed: datetime.datetime,
     ) -> None:
 
         self.env = env
         self.commit_frequency = commit_frequency
         self.compression_level = compression_level
-        self.most_recent_indexed = most_recent_indexed
 
         self.txn: lmdb.Transaction | None = None
         self.item_count = 0
@@ -130,27 +115,6 @@ class Inserter:
             key=doi_bytes,
             value=item_compressed,
         )
-
-        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-            item=item
-        )
-
-        if indexed_datetime is None:
-            LOGGER.warning(f"No indexed date for DOI {doi}")
-
-        elif indexed_datetime > self.most_recent_indexed:
-
-            most_recent_indexed_str = indexed_datetime.isoformat()
-
-            self.insert(
-                key=b"__most_recent_indexed",
-                value=zlib.compress(
-                    most_recent_indexed_str.encode(),
-                    level=self.compression_level,
-                ),
-            )
-
-            self.most_recent_indexed = indexed_datetime
 
     def insert(
         self,
@@ -197,13 +161,6 @@ def get_from_date(params: crossref_lmdb.params.UpdateParams) -> str:
     # if we haven't been provided a from date, then grab it from the database
     if from_date is None:
         with crossref_lmdb.db.DBReader(db_dir=params.db_dir) as db:
-            from_date_dt = datetime.datetime.fromisoformat(
-                db.most_recent_indexed
-            )
-
-        from_date = from_date_dt.strftime("%Y-%m-%d")
-
-    if not isinstance(from_date, str):
-        raise ValueError()
+            from_date = db.get_most_recent_indexed()
 
     return from_date

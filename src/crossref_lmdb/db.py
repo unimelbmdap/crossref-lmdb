@@ -5,10 +5,13 @@ import types
 import pathlib
 import collections
 import zlib
+import datetime
 
 import lmdb
 
 import simdjson
+
+import crossref_lmdb.date
 
 
 class DBReader(collections.abc.Mapping[str, simdjson.Object]):
@@ -120,20 +123,35 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         return value
 
-    @property
-    def most_recent_indexed(self) -> str:
+    def get_most_recent_indexed(self) -> str:
         """
         Returns the date, in YYYY-MM-DD format, of the most recently indexed
         item in the database.
         """
 
-        key = b"__most_recent_indexed"
+        most_recent_indexed: datetime.datetime | None = None
 
-        value = self._extract_value(
-            raw_value=self._txn.get(key)
-        ).decode()
+        for item in self.values():
 
-        return value
+            item_indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
+                item=item
+            )
+
+            if item_indexed_datetime is None:
+                raise ValueError()
+
+            if (
+                most_recent_indexed is None
+                or item_indexed_datetime > most_recent_indexed
+            ):
+                most_recent_indexed = item_indexed_datetime
+
+        if most_recent_indexed is None:
+            raise ValueError()
+
+        most_recent_indexed_str = most_recent_indexed.strftime("%Y-%m-%d")
+
+        return most_recent_indexed_str
 
     def close(
         self,
