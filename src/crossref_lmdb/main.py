@@ -27,6 +27,10 @@ def run(
     params: crossref_lmdb.params.CreateParams | crossref_lmdb.params.UpdateParams,
 ) -> None:
 
+    start_time = datetime.datetime.now()
+
+    LOGGER.info(f"Beginning processing at {start_time}")
+
     if isinstance(params, crossref_lmdb.params.UpdateParams):
         from_date = get_from_date(params=params)
 
@@ -76,6 +80,16 @@ def run(
 
             for item in item_iterator:
                 item_inserter.insert_item(item=item)
+
+    end_time = datetime.datetime.now()
+
+    LOGGER.info(f"Finished processing at {end_time}")
+
+    time_taken_s = (end_time - start_time).total_seconds()
+
+    time_taken_hours = time_taken_s / 60 / 60
+
+    LOGGER.info(f"Processing took {time_taken_hours:.4f} hours")
 
 
 class Inserter:

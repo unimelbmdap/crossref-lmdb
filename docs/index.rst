@@ -24,9 +24,16 @@ This project imports the metadata into a `Lighting Memory-Mapped Database (LMDB)
 Features
 --------
 
-* Create a Lightning database from the CrossRef public data export, with optional compression of stored metadata values and filtering of DOI items based on custom Python code.
-* Update the database with items from the CrossRef web API that have been added or modified since a given date.
-* Read from the database in Python via a dict-like data structure.
+* Creating a Lightning database from the CrossRef public data export, with optional compression of stored metadata values and filtering of DOI items based on custom Python code.
+* Updating the database with items from the CrossRef web API that have been added or modified since a given date.
+* Reading from the database in Python via a dict-like data structure.
+
+Limitations
+-----------
+
+* The Lightning database format is not very efficient with disk space for this data (see `the LMDB documentation <https://lmdb.readthedocs.io/en/release/#storage-efficiency-limits>`_ for more details); the full 2024 public data export (X GB of compressed JSON) is about X GB.
+* The creation of the database is quite slow, with database creation from the full 2024 public data export taking around X hours.
+* Updating the database is even slower - perhaps prohibitively slow. Updating from the 2024 public data export to November X 2024 requires updating X items, taking around a month.
 
 
 Installation
