@@ -223,7 +223,7 @@ class WebSource(crossref_lmdb.items.ItemSource):
         self.from_date = from_date
         self.filter_arg = filter_arg
 
-        self._total_items: int | None = None
+        self._total_items: int = -1
 
         self.n_rows = 1_000
 
@@ -233,11 +233,8 @@ class WebSource(crossref_lmdb.items.ItemSource):
 
     @property
     def total_items(self) -> int:
-        if self._total_items is None:
+        if self._total_items == -1:
             self._total_items = self._request_total_items()
-
-        if self._total_items is None:
-            raise ValueError()
 
         return self._total_items
 
@@ -328,7 +325,7 @@ class WebSource(crossref_lmdb.items.ItemSource):
             items = message["items"]
 
             if not isinstance(items, simdjson.Array):
-                raise ValueError
+                raise ValueError()
 
             n_items = len(items)
 
