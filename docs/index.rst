@@ -32,7 +32,7 @@ Limitations
 -----------
 
 * The Lightning database format is not very efficient with disk space for this data (see `the LMDB documentation <https://lmdb.readthedocs.io/en/release/#storage-efficiency-limits>`_ for more details); the full 2024 public data export (X GB of compressed JSON) is about X GB.
-* The creation of the database is quite slow, with database creation from the full 2024 public data export taking around X hours.
+* The creation of the database is slow, with database creation from the full 2024 public data export taking around X hours.
 * Updating the database is even slower - perhaps prohibitively slow. Updating from the 2024 public data export to November X 2024 requires updating X items, taking around a month.
 
 
