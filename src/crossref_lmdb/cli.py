@@ -35,7 +35,7 @@ def main() -> None:
 def setup_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
-        description="Interact with Crossref data via a Lightning database",
+        description="Interact with Crossref data via a Lightning database.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -43,20 +43,20 @@ def setup_parser() -> argparse.ArgumentParser:
         "--debug",
         action="store_true",
         default=False,
-        help="Print error tracebacks",
+        help="Print error tracebacks.",
     )
 
     subparsers = parser.add_subparsers(dest="command")
 
     create_parser = subparsers.add_parser(
         "create",
-        help="Create a Lightning database from Crossref public data",
+        help="Create a Lightning database from Crossref public data.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     update_parser = subparsers.add_parser(
         "update",
-        help="Update a Lighting database with new data from the web API",
+        help="Update a Lighting database with new data from the web API.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -64,14 +64,14 @@ def setup_parser() -> argparse.ArgumentParser:
         "--public-data-dir",
         type=pathlib.Path,
         required=True,
-        help="Path to the Crossref public data directory",
+        help="Path to the Crossref public data directory.",
     )
 
     create_parser.add_argument(
         "--db-dir",
         type=pathlib.Path,
         required=True,
-        help="Path to the directory to write the database files",
+        help="Path to the directory to write the database files.",
     )
 
     create_parser.add_argument(
@@ -79,7 +79,7 @@ def setup_parser() -> argparse.ArgumentParser:
         type=int,
         required=False,
         default=0,
-        help="Begin processing from this file number in the public data archive",
+        help="Begin processing from this file number in the public data archive.",
     )
 
     for subparser in (create_parser, update_parser):
@@ -91,7 +91,7 @@ def setup_parser() -> argparse.ArgumentParser:
             default=20_000,
             help=(
                 "How often to commit changes to the database, in units of number "
-                + "of items"
+                + "of items."
             ),
         )
 
@@ -104,7 +104,7 @@ def setup_parser() -> argparse.ArgumentParser:
             help=(
                 "Level of compression to use for metadata; 0 is no compression, -1 is "
                 + "the default level of compression (6), and between 1 and 9 is the "
-                + "level where 1 is the least and 9 is the most"
+                + "level where 1 is the least and 9 is the most."
             ),
         )
 
@@ -113,14 +113,16 @@ def setup_parser() -> argparse.ArgumentParser:
             type=pathlib.Path,
             required=False,
             help=(
-                "Path to a Python module file containing a function for filtering DOIs "
-                + "(see documentation for details)"
+                "Path to a Python module file containing a function for filtering DOIs. "
+                + "This function must be called `filter_func` and accept one parameter, "
+                + "which contains a dict-like interface to item metadata. The function "
+                + "returns False if the item is to be filtered out and True otherwise."
             ),
         )
 
         subparser.add_argument(
             "--show-progress",
-            help="Enable or disable a progress bar",
+            help="Enable or disable a progress bar.",
             default=True,
             action=argparse.BooleanOptionalAction,
         )
@@ -139,9 +141,8 @@ def setup_parser() -> argparse.ArgumentParser:
             default=default_max_db_size_gb,
             help=(
                 "Maximum size that the database can grow to, in GB units. "
-                + "Note that this is set to a smaller default on Windows, "
+                + "Note that this is set to a smaller default on Windows (2 GB), "
                 + "due to it pre-allocating space. "
-                + "See the documentation for details."
             ),
         )
 
@@ -149,7 +150,7 @@ def setup_parser() -> argparse.ArgumentParser:
         "--db-dir",
         type=pathlib.Path,
         required=True,
-        help="Path to the directory containing the database files",
+        help="Path to the directory containing the LMDB database files.",
     )
 
     update_parser.add_argument(
@@ -158,7 +159,7 @@ def setup_parser() -> argparse.ArgumentParser:
         required=True,
         help=(
             "Email address to provide to the Crossref web API so as to be "
-            + "able to use the polite pool"
+            + "able to use the polite pool."
         ),
     )
 
@@ -167,14 +168,14 @@ def setup_parser() -> argparse.ArgumentParser:
         required=False,
         help=(
             "A date from which to search for updated records, specified in "
-            "`YYYY[-MM[-DD]]` format (i.e., month and day are optional)"
+            "`YYYY[-MM[-DD]]` format (i.e., month and day are optional)."
         ),
     )
 
     update_parser.add_argument(
         "--filter-arg",
         required=False,
-        help=("A Crossref web API filter string for restricting DOIs."),
+        help="A Crossref web API filter string for restricting DOIs.",
     )
 
     return parser
