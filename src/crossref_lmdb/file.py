@@ -1,3 +1,7 @@
+"""
+Interface for reading items from a file.
+"""
+
 from __future__ import annotations
 
 import pathlib

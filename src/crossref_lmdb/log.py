@@ -1,9 +1,11 @@
+"""
+Handles logging setup.
+"""
+
 import logging
 import os
 import sys
 import typing
-
-
 
 
 def setup_logging() -> None:

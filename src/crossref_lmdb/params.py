@@ -1,3 +1,7 @@
+"""
+Handles the parameters for database creation and updating.
+"""
+
 from __future__ import annotations
 
 import abc

@@ -1,3 +1,7 @@
+"""
+Interface for creating and updating the database.
+"""
+
 from __future__ import annotations
 
 import typing
@@ -31,6 +35,7 @@ def run(
 
     LOGGER.info(f"Beginning processing at {start_time}")
 
+    # only if updating do we need a 'from' date
     if isinstance(params, crossref_lmdb.params.UpdateParams):
         from_date = get_from_date(params=params)
 
@@ -52,6 +57,7 @@ def run(
         subdir=True,
     ) as env:
 
+        # we acquire items either from a file (create) or via the web API (update)
         item_source = (
             crossref_lmdb.file.FileSource(
                 public_data_dir=params.public_data_dir,

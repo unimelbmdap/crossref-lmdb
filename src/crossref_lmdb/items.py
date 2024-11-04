@@ -1,3 +1,7 @@
+"""
+Generic interface for items.
+"""
+
 from __future__ import annotations
 
 import logging

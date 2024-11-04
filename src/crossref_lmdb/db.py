@@ -1,3 +1,7 @@
+"""
+The database reader interface.
+"""
+
 from __future__ import annotations
 
 import typing

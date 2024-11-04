@@ -1,3 +1,7 @@
+"""
+Handles the loading of a filtering function from a file.
+"""
+
 from __future__ import annotations
 
 import typing
