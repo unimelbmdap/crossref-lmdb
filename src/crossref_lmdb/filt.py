@@ -20,9 +20,7 @@ def get_filter_func(filter_path: pathlib.Path) -> FilterFunc:
     filter_locals = run_code_from_text(code=filter_code)
 
     if "filter_func" not in filter_locals:
-        raise ValueError(
-            f"No function named `filter_func` present in {filter_path}"
-        )
+        raise ValueError(f"No function named `filter_func` present in {filter_path}")
 
     filter_func = typing.cast(
         FilterFunc,

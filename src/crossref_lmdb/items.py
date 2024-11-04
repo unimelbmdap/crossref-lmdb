@@ -26,23 +26,19 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
 
     @property
     @abc.abstractmethod
-    def total_items(self) -> int:
-        ...
+    def total_items(self) -> int: ...
 
     @property
     @abc.abstractmethod
-    def total_units(self) -> str:
-        ...
+    def total_units(self) -> str: ...
 
     @property
     @abc.abstractmethod
-    def filter_func(self) -> crossref_lmdb.filt.FilterFunc | None:
-        ...
+    def filter_func(self) -> crossref_lmdb.filt.FilterFunc | None: ...
 
     @property
     @abc.abstractmethod
-    def show_progress(self) -> bool:
-        ...
+    def show_progress(self) -> bool: ...
 
     def __iter__(self) -> typing.Iterator[Item]:
         self._item_iter = self.iter_item()
@@ -52,8 +48,7 @@ class ItemSource(abc.ABC, collections.abc.Iterator[Item]):
         return next(self._item_iter)
 
     @abc.abstractmethod
-    def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]:
-        ...
+    def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]: ...
 
     def iter_item(self) -> typing.Iterator[Item]:
 

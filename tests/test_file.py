@@ -25,10 +25,7 @@ def test_file_source(shared_datadir, monkeypatch):
 
     item_iter = source.iter_unfiltered_items_data()
 
-    items = [
-        item
-        for item in item_iter
-    ]
+    items = [item for item in item_iter]
 
     assert len(items) == 2
 
@@ -43,17 +40,11 @@ def test_file_source(shared_datadir, monkeypatch):
 
     item_iter = source.iter_unfiltered_items_data()
 
-    item_two, = [
-        item
-        for item in item_iter
-    ]
+    (item_two,) = [item for item in item_iter]
 
     assert item_two == items[1]
 
-    iter_items = [
-        item
-        for item in source
-    ]
+    iter_items = [item for item in source]
 
     assert len(iter_items) == 2
 
@@ -74,9 +65,7 @@ def test_file_source(shared_datadir, monkeypatch):
     assert len(filtered_items) == 4 - 1
 
     def mock_prepare_json_items(data):
-        mock_array = simdjson.Parser().parse(
-            json.dumps([1, 2])
-        )
+        mock_array = simdjson.Parser().parse(json.dumps([1, 2]))
         return mock_array
 
     monkeypatch.setattr(
@@ -91,9 +80,7 @@ def test_file_source(shared_datadir, monkeypatch):
         next(i)
 
     def mock_prepare_json_items(data):
-        mock_array = simdjson.Parser().parse(
-            json.dumps([{"notDOI": "test"}])
-        )
+        mock_array = simdjson.Parser().parse(json.dumps([{"notDOI": "test"}]))
         return mock_array
 
     monkeypatch.setattr(

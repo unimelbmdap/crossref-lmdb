@@ -23,7 +23,7 @@ class FileSource(crossref_lmdb.items.ItemSource):
         public_data_dir: pathlib.Path,
         show_progress: bool,
         filter_func: crossref_lmdb.filt.FilterFunc | None,
-        start_from_file_num: int
+        start_from_file_num: int,
     ) -> None:
 
         self.public_data_dir = public_data_dir
@@ -54,7 +54,7 @@ class FileSource(crossref_lmdb.items.ItemSource):
 
     @staticmethod
     def file_num_from_path(path: pathlib.Path) -> int:
-        return int(path.name[:-len(".json.gz")])
+        return int(path.name[: -len(".json.gz")])
 
     def iter_unfiltered_items_data(self) -> typing.Iterable[bytes]:
 

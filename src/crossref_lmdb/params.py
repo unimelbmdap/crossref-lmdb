@@ -27,11 +27,7 @@ class Params(abc.ABC):
     @property
     def max_db_size_bytes(self) -> int:
 
-        multiplier = (
-            1000  # MB
-            * 1000  # KB
-            * 1000  # B
-        )
+        multiplier = 1000 * 1000 * 1000  # MB  # KB  # B
 
         n_bytes = self.max_db_size_gb * multiplier
 
@@ -62,10 +58,7 @@ class Params(abc.ABC):
         if any(errors):
             error_msg = "\n".join(
                 ["Encountered the following errors with the provided arguments:"]
-                + [
-                    f"\t{error}"
-                    for error in errors
-                ]
+                + [f"\t{error}" for error in errors]
             )
             raise ValueError(error_msg)
 
@@ -74,26 +67,18 @@ class Params(abc.ABC):
         errors: list[str] = []
 
         if not self.db_dir.exists():
-            errors.append(
-                f"Database directory ({self.db_dir}) does not exist"
-            )
+            errors.append(f"Database directory ({self.db_dir}) does not exist")
 
         if self.max_db_size_gb <= 0:
-            errors.append(
-                f"Invalid maximum database size ({self.max_db_size_gb})"
-            )
+            errors.append(f"Invalid maximum database size ({self.max_db_size_gb})")
 
         if self.compression_level not in list(range(-1, 9 + 1)):
-            errors.append(
-                f"Invalid compression level ({self.compression_level})"
-            )
+            errors.append(f"Invalid compression level ({self.compression_level})")
 
         if self.filter_path is not None:
 
             if not self.filter_path.exists():
-                errors.append(
-                    f"Filter path ({self.filter_path}) does not exist"
-                )
+                errors.append(f"Filter path ({self.filter_path}) does not exist")
 
             if self.filter_path.exists() and self.filter_path.suffix != ".py":
                 errors.append(
@@ -137,9 +122,7 @@ class UpdateParams(Params):
                     break
 
             else:
-                errors.append(
-                    f"From date `{self.from_date}` not in a valid format"
-                )
+                errors.append(f"From date `{self.from_date}` not in a valid format")
 
         return errors
 

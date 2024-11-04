@@ -19,7 +19,6 @@ def test_web(monkeypatch, test_data_dir):
         mock_set_rate_limit,
     )
 
-
     def mock_call_for_total(self, query):
 
         content = test_data_dir / "eg_total_response.json"
@@ -70,10 +69,7 @@ def test_web(monkeypatch, test_data_dir):
         mock_call,
     )
 
-    items = [
-        item
-        for item in web_source.iter_unfiltered_items_data()
-    ]
+    items = [item for item in web_source.iter_unfiltered_items_data()]
 
     assert len(items) == 3
 
@@ -93,10 +89,7 @@ def test_web(monkeypatch, test_data_dir):
     )
 
     with pytest.raises(ValueError):
-        items = [
-            item
-            for item in web_source.iter_unfiltered_items_data()
-        ]
+        items = [item for item in web_source.iter_unfiltered_items_data()]
 
     def mock_call_bad(self, query):
 
@@ -114,10 +107,7 @@ def test_web(monkeypatch, test_data_dir):
     )
 
     with pytest.raises(ValueError):
-        items = [
-            item
-            for item in web_source.iter_unfiltered_items_data()
-        ]
+        items = [item for item in web_source.iter_unfiltered_items_data()]
 
     def mock_call_bad(self, query):
 
@@ -137,10 +127,7 @@ def test_web(monkeypatch, test_data_dir):
     )
 
     with pytest.raises(ValueError):
-        items = [
-            item
-            for item in web_source.iter_unfiltered_items_data()
-        ]
+        items = [item for item in web_source.iter_unfiltered_items_data()]
 
     query = web_source.form_query(
         from_date="2024-01-01",
@@ -148,7 +135,6 @@ def test_web(monkeypatch, test_data_dir):
     )
 
     assert query == (
-        "works?filter=from-index-date:2024-01-01,type:journal-article" +
-        "&rows=1000&cursor=*&sort=indexed&order=asc"
+        "works?filter=from-index-date:2024-01-01,type:journal-article"
+        + "&rows=1000&cursor=*&sort=indexed&order=asc"
     )
-

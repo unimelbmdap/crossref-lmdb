@@ -1,4 +1,3 @@
-
 import pytest
 
 import crossref_lmdb.filt

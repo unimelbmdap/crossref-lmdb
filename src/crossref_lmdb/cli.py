@@ -131,7 +131,7 @@ def setup_parser() -> argparse.ArgumentParser:
             help=(
                 "Maximum size that the database can grow to, in GB units. "
                 + "See the documentation for details."
-            )
+            ),
         )
 
     update_parser.add_argument(
@@ -163,9 +163,7 @@ def setup_parser() -> argparse.ArgumentParser:
     update_parser.add_argument(
         "--filter-arg",
         required=False,
-        help=(
-            "A Crossref web API filter string for restricting DOIs."
-        ),
+        help=("A Crossref web API filter string for restricting DOIs."),
     )
 
     return parser

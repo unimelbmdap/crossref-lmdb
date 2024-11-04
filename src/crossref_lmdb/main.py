@@ -153,9 +153,7 @@ class Inserter:
             value=item_compressed,
         )
 
-        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-            item=item
-        )
+        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
         if indexed_datetime is None:
             LOGGER.warning(f"No indexed date for DOI {doi}")
@@ -219,9 +217,7 @@ def get_from_date(params: crossref_lmdb.params.UpdateParams) -> str:
     # if we haven't been provided a from date, then grab it from the database
     if from_date is None:
         with crossref_lmdb.db.DBReader(db_dir=params.db_dir) as db:
-            from_date_dt = datetime.datetime.fromisoformat(
-                db.most_recent_indexed
-            )
+            from_date_dt = datetime.datetime.fromisoformat(db.most_recent_indexed)
 
         from_date = from_date_dt.strftime("%Y-%m-%d")
 

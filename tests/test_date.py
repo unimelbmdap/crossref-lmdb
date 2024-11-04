@@ -1,4 +1,3 @@
-
 import json
 import datetime
 
@@ -14,8 +13,8 @@ def test_get_published_date():
     eg_dict = {
         "published": {
             "date-parts": [
-                    [1994, 2, 1],
-                    [1994, 1, 1],
+                [1994, 2, 1],
+                [1994, 1, 1],
             ],
         },
     }
@@ -96,9 +95,7 @@ def test_get_indexed_datetime():
 
     item = simdjson.Parser().parse(eg)
 
-    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-        item=item
-    )
+    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     assert indexed_datetime == datetime.datetime(
         year=2023,
@@ -116,9 +113,7 @@ def test_get_indexed_datetime():
     item = simdjson.Parser().parse(eg)
 
     with pytest.raises(ValueError):
-        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-            item=item
-        )
+        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     eg_dict["indexed"]["date-time"] = 1
 
@@ -127,9 +122,7 @@ def test_get_indexed_datetime():
     item = simdjson.Parser().parse(eg)
 
     with pytest.raises(ValueError):
-        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-            item=item
-        )
+        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     del eg_dict["indexed"]["date-time"]
 
@@ -137,9 +130,7 @@ def test_get_indexed_datetime():
 
     item = simdjson.Parser().parse(eg)
 
-    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-        item=item
-    )
+    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     assert indexed_datetime is None
 
@@ -150,9 +141,7 @@ def test_get_indexed_datetime():
     item = simdjson.Parser().parse(eg)
 
     with pytest.raises(ValueError):
-        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-            item=item
-        )
+        indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     del eg_dict["indexed"]
 
@@ -160,8 +149,6 @@ def test_get_indexed_datetime():
 
     item = simdjson.Parser().parse(eg)
 
-    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(
-        item=item
-    )
+    indexed_datetime = crossref_lmdb.date.get_indexed_datetime(item=item)
 
     assert indexed_datetime is None

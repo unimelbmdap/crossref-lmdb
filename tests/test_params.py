@@ -20,9 +20,9 @@ def test_create_params(db_dir, public_data_dir, tmp_path_factory):
         commit_frequency=1_000,
     )
 
-    assert params.max_db_size_bytes == 1 * 1000 ** 3
+    assert params.max_db_size_bytes == 1 * 1000**3
 
-    params.max_db_size_gb = 0.5 / (1000 ** 3)
+    params.max_db_size_gb = 0.5 / (1000**3)
 
     with pytest.raises(ValueError):
         params.max_db_size_bytes

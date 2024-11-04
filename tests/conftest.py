@@ -1,4 +1,3 @@
-
 import pathlib
 
 import pytest
@@ -12,7 +11,6 @@ def public_data_dir():
     return pathlib.Path(__file__).parent / "data"
 
 
-
 @pytest.fixture(scope="session")
 def test_data_dir():
     return pathlib.Path(__file__).parent / "data"
@@ -21,7 +19,6 @@ def test_data_dir():
 @pytest.fixture(scope="session")
 def db_dir(tmp_path_factory):
     return tmp_path_factory.mktemp("db")
-
 
 
 @pytest.fixture(scope="session")

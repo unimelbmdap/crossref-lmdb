@@ -40,9 +40,7 @@ def test_db_reader(db_dir, db, monkeypatch):
         reader._extract_value(raw_value=b"test")
 
         def mock_extract_value(raw_value):
-            mock_array = simdjson.Parser().parse(
-                json.dumps([1, 2])
-            ).mini
+            mock_array = simdjson.Parser().parse(json.dumps([1, 2])).mini
             return mock_array
 
         monkeypatch.setattr(
@@ -53,4 +51,3 @@ def test_db_reader(db_dir, db, monkeypatch):
 
         with pytest.raises(ValueError):
             reader[list(reader)[0]]
-

@@ -72,9 +72,7 @@ class WebRequester:
 
         self.max_retry_attempts = max_retry_attempts
 
-        self.retry_wrapper = retryhttp.retry(
-            max_attempt_number=self.max_retry_attempts
-        )
+        self.retry_wrapper = retryhttp.retry(max_attempt_number=self.max_retry_attempts)
 
         if headers is not None:
             self._session.headers = {**self._session.headers, **headers}
@@ -165,15 +163,10 @@ class CrossRefWebAPI:
         period_s = int(response.headers["x-ratelimit-interval"][:-1])
 
         limiter = pyrate_limiter.Limiter(
-            pyrate_limiter.RequestRate(
-                limit=n_calls,
-                interval=period_s
-            )
+            pyrate_limiter.RequestRate(limit=n_calls, interval=period_s)
         )
 
-        LOGGER.info(
-            f"Set CrossRef rate limits to {n_calls} calls per {period_s} s"
-        )
+        LOGGER.info(f"Set CrossRef rate limits to {n_calls} calls per {period_s} s")
 
         self._session = WebRequester(
             headers={"User-Agent": self.user_agent},
@@ -359,23 +352,11 @@ class WebSource(crossref_lmdb.items.ItemSource):
 
         cursor = f"cursor={cursor}"
 
-        select = (
-            "select=DOI"
-            if only_doi
-            else None
-        )
+        select = "select=DOI" if only_doi else None
 
-        sort: str | None = (
-            "sort=indexed"
-            if sort_results
-            else None
-        )
+        sort: str | None = "sort=indexed" if sort_results else None
 
-        order: str | None = (
-            "order=asc"
-            if sort_results
-            else None
-        )
+        order: str | None = "order=asc" if sort_results else None
 
         params = [
             param

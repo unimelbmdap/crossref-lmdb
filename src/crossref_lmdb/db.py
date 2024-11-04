@@ -33,9 +33,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         self._db_dir = db_dir
 
-        self._special_keys = (
-            "__most_recent_indexed",
-        )
+        self._special_keys = ("__most_recent_indexed",)
 
         self._env = lmdb.Environment(
             path=str(self._db_dir),
@@ -133,9 +131,7 @@ class DBReader(collections.abc.Mapping[str, simdjson.Object]):
 
         key = b"__most_recent_indexed"
 
-        value = self._extract_value(
-            raw_value=self._txn.get(key)
-        ).decode()
+        value = self._extract_value(raw_value=self._txn.get(key)).decode()
 
         return value
 
