@@ -25,11 +25,7 @@ def db_dir(tmp_path_factory):
 @pytest.fixture(scope="session")
 def db(db_dir, public_data_dir):
 
-    max_db_size_gb = (
-        1
-        if os.name == "nt"
-        else 2000
-    )
+    max_db_size_gb = 1 if os.name == "nt" else 2000
 
     params = crossref_lmdb.params.CreateParams(
         public_data_dir=public_data_dir,

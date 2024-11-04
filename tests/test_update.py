@@ -38,11 +38,7 @@ def test_update(db_dir, db, test_data_dir, monkeypatch):
         mock_call_for_total,
     )
 
-    max_db_size_gb = (
-        1
-        if os.name == "nt"
-        else 2000
-    )
+    max_db_size_gb = 1 if os.name == "nt" else 2000
 
     params = crossref_lmdb.params.UpdateParams(
         email_address="test@test.com",

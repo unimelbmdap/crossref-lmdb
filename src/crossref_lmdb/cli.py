@@ -131,11 +131,7 @@ def setup_parser() -> argparse.ArgumentParser:
 
         is_windows = os.name == "nt"
 
-        default_max_db_size_gb = (
-            2
-            if is_windows
-            else 2000
-        )
+        default_max_db_size_gb = 2 if is_windows else 2000
 
         subparser.add_argument(
             "--max-db-size-gb",
