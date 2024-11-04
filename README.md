@@ -1,10 +1,30 @@
 # crossref-lmdb
 
-A command-line application and Python library for converting the CrossRef public data export into a Lightning DOI:metadata key:value database.
+A command-line application and Python library for accessing DOI metadata from a CrossRef public data export via a Lightning key:value (DOI:metadata) database.
+
+The [public data export from CrossRef](https://www.crossref.org/blog/2024-public-data-file-now-available-featuring-new-experimental-formats/) is a very useful way to access large amounts of DOI metadata because it avoids the need to acquire data over the web API.
+However, the metadata is represented in the public data export as a large number of compressed JSON files - which makes it difficult and time-consuming to access the metadata for a given DOI.
+This project imports the metadata into a [Lighting Memory-Mapped Database (LMDB)](https://en.wikipedia.org/wiki/Lightning_Memory-Mapped_Database), in which the DOIs are the database keys and the associated metadata are the database values.
+
+> [!WARNING]
+> This database is mostly only useful for projects requiring a relatively small portion of the total metadata - creating and updating the database is likely to be prohibitively slow otherwise.
+
+Features
+--------
+
+* Create a Lightning database from the CrossRef public data export, with optional filtering of DOI items based on custom Python code.
+* Update the database with items from the CrossRef web API that have been added or modified since a given date.
+* Read from the database in Python via a dict-like data structure.
+
+Limitations
+-----------
+
+* The Lightning database format is not very efficient with disk space for this data (see [the LMDB documentation](https://lmdb.readthedocs.io/en/release/#storage-efficiency-limits) for more details).
+* The creation of the database is very slow, with database creation from the full 2024 public data export taking multiple days.
+* Updating the database is even slower.
 
 > [!NOTE]
 > This project is not affiliated with, supported by, or endorsed by CrossRef.
-
 
 
 ## Installation
@@ -12,54 +32,31 @@ A command-line application and Python library for converting the CrossRef public
 The package can be installed using `pip`:
 
 ```bash
-pip install crossref-lmdb
+pip install git+https://github.com/unimelbmdap/crossref-lmdb 
 ```
 
 Using the package requires the CrossRef public data export files (2024 release) to have been downloaded.
 See [the instructions from CrossRef](https://www.crossref.org/blog/2024-public-data-file-now-available-featuring-new-experimental-formats/) for obtaining these files.
 
-## Creating a database
+
+## Documentation
+
+See [https://unimelbmdap.github.io/crossref-lmdb/](https://unimelbmdap.github.io/crossref-lmdb/) for documentation.
 
 
-## Updating a database
+## Contact
+
+Issues can be raised via the [issue tracker](https://github.com/unimelbmdap/crossref-lmdb/issues).
 
 
-## Reading from the database in Python
+## Authors
 
+Please feel free to email if you find this package to be useful or have any suggestions or feedback.
 
-The database is available as a Python [`Mapping`](https://docs.python.org/3/glossary.html#term-mapping) object via the `crossref_lmdb.DBReader` class.
+* Damien Mannion:
+    * **Email:** [damien.mannion@unimelb.edu.au](mailto:damien.mannion@unimelb.edu.au)
+    * **Organisation:** [Melbourne Data Analytics Platform](https://unimelb.edu.au/mdap), [The University of Melbourne](https://www.unimelb.edu.au)
+    * **Title:** Senior Research Data Specialist
+    * **Website:** [https://www.djmannion.net](https://www.djmannion.net)
+    * **Github profile:** [djmannion](https://github.com/djmannion)
 
-
-```python
-import pathlib
-
-import crossref_lmdb
-
-# assuming the database is located in the `db` subdirectory
-# at the current location
-db_dir = pathlib.Path("db/")
-
-with crossref_lmdb.DBReader(db_dir=db_dir) as reader:
-
-    # fast access to the number of items
-    print(f"Number of items in database: {len(reader)}")
-
-    # a reference to the most recently-indexed item is stored
-    # in the database
-    print(f"Most recently-indexed item: {reader.most_recent_indexed}")
-
-    # dict-like access to metadata for a given DOI
-    doi_metadata = reader["10.7717/peerj.1038"]
-
-    # dict-like iteration over (key, value) pairs
-    for (doi, metadata) in reader.items():
-        break
-
-    # dict-like iteration over keys (DOIs)
-    for doi in reader:
-        break
-
-    # dict-like iteration over values (metadata)
-    for metadata in reader.values():
-        break
-```
