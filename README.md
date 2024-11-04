@@ -53,10 +53,10 @@ Issues can be raised via the [issue tracker](https://github.com/unimelbmdap/cros
 
 Please feel free to email if you find this package to be useful or have any suggestions or feedback.
 
-* Damien Mannion:
-    * **Email:** [damien.mannion@unimelb.edu.au](mailto:damien.mannion@unimelb.edu.au)
-    * **Organisation:** [Melbourne Data Analytics Platform](https://unimelb.edu.au/mdap), [The University of Melbourne](https://www.unimelb.edu.au)
-    * **Title:** Senior Research Data Specialist
-    * **Website:** [https://www.djmannion.net](https://www.djmannion.net)
-    * **Github profile:** [djmannion](https://github.com/djmannion)
+* **Damien Mannion**:
+    * *Email:* [damien.mannion@unimelb.edu.au](mailto:damien.mannion@unimelb.edu.au)
+    * *Organisation:* [Melbourne Data Analytics Platform](https://unimelb.edu.au/mdap), [The University of Melbourne](https://www.unimelb.edu.au)
+    * *Title:* Senior Research Data Specialist
+    * *Website:* [https://www.djmannion.net](https://www.djmannion.net)
+    * *Github profile:* [djmannion](https://github.com/djmannion)
 
