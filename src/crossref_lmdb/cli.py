@@ -8,6 +8,7 @@ import argparse
 import pathlib
 import logging
 import sys
+import os
 
 import crossref_lmdb.params
 import crossref_lmdb.main
@@ -124,12 +125,22 @@ def setup_parser() -> argparse.ArgumentParser:
             action=argparse.BooleanOptionalAction,
         )
 
+        is_windows = os.name == "nt"
+
+        default_max_db_size_gb = (
+            2
+            if is_windows
+            else 2000
+        )
+
         subparser.add_argument(
             "--max-db-size-gb",
             type=float,
-            default=2000,
+            default=default_max_db_size_gb,
             help=(
                 "Maximum size that the database can grow to, in GB units. "
+                + "Note that this is set to a smaller default on Windows, "
+                + "due to it pre-allocating space. "
                 + "See the documentation for details."
             ),
         )
