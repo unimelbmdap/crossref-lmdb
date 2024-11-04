@@ -30,6 +30,8 @@ html_show_sphinx = False
 
 html_theme_options = {}
 
+pygments_dark_style = "github-dark"
+
 autodoc_typehints = "both"
 autodoc_member_order = "bysource"
 autodoc_preserve_defaults = True

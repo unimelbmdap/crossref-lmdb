@@ -40,12 +40,3 @@ Example
         # dict-like iteration over values (metadata)
         for metadata in reader.values():
             break
-
-
-Reference
----------
-
-.. autoclass:: crossref_lmdb.DBReader
-    :members:
-
-
