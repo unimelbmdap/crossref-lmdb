@@ -64,3 +64,22 @@ Documentation guide
 
 :doc:`/cmd`
     A reference for the ``crossref-lmdb`` command-line application and its options.
+
+
+Contact
+-------
+
+Issues can be raised via the `Github repository <https://github.com/unimelbmdap/crossref-lmdb/issues>`_.
+
+
+Authors
+-------
+
+Please feel free to email if you find this package to be useful or have any suggestions or feedback.
+
+* Damien Mannion:
+    * **Email:** `damien.mannion@unimelb.edu.au <mailto:damien.mannion@unimelb.edu.au>`_
+    * **Organisation:** `Melbourne Data Analytics Platform <https://unimelb.edu.au/mdap>`_, `The University of Melbourne <https://www.unimelb.edu.au>`_
+    * **Title:** Senior Research Data Specialist
+    * **Website:** `https://www.djmannion.net <https://www.djmannion.net>`_
+

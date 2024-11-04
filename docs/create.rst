@@ -3,7 +3,7 @@ Creating a database
 
 A database is created from a CrossRef public data export via the ``crossref-lmdb create`` command - see :doc:`/cmd` for the command options and defaults.
 
-For example, the following command will read from a public data export in the ``public_data_export`` directory and create a database in the ``db`` subdirectory:
+For example, the following command will read from a public data export in the ``public_data_export`` directory (i.e., the directory containing the series of ``0.json.gz``, ``1.json.gz``, etc. files) and create a database in the ``db`` subdirectory:
 
 .. code:: bash
 
@@ -18,7 +18,7 @@ For example, the following command will read from a public data export in the ``
 Filtering items
 ---------------
 
-In typical usage, the complete set of metadata is not required; for example, you may only want metadata for DOIs that relate to journal articles or span a particular range of published years.
+The intended usage of this database is where you do not need *all* of the metadata within the public data export; for example, you may only want metadata for DOIs that relate to journal articles or span a particular range of published years.
 Items can be prevented from entering the database by providing a ``--filter-path`` argument to ``crossref-lmdb create``.
 This argument needs to be a Python file that contains a function called ``filter_func``.
 This function must accept one argument, a dict-like representation of the item metadata, and must return ``True`` if the item is to be included in the database and ``False`` otherwise.

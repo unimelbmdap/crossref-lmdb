@@ -1,5 +1,5 @@
-Read from the database
-======================
+Reading from the database
+=========================
 
 The database can be queried from within Python using the :py:class:`crossref_lmdb.DBReader` class.
 Instances of this class provide a context manager and a dict-like interface for interacting with DOIs and their metadata.
