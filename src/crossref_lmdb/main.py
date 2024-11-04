@@ -133,6 +133,8 @@ class Inserter:
             LOGGER.warning(f"No DOI found in item {item_bytes.decode()}")
             return
 
+        LOGGER.debug(f"Inserting item with doi {doi}")
+
         doi_bytes = doi.encode()
 
         item_compressed = zlib.compress(

@@ -329,6 +329,8 @@ class WebSource(crossref_lmdb.items.ItemSource):
 
             n_items = len(items)
 
+            LOGGER.debug(f"Number of items in this page: {n_items}")
+
             more_pages = n_items > 0
 
             if not more_pages:
@@ -340,7 +342,7 @@ class WebSource(crossref_lmdb.items.ItemSource):
     def form_query(
         from_date: str,
         filter_arg: str | None = None,
-        n_rows: int = 500,
+        n_rows: int = 1_000,
         cursor: str = "*",
         only_doi: bool = False,
         sort_results: bool = True,

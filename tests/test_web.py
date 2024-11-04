@@ -141,3 +141,14 @@ def test_web(monkeypatch, test_data_dir):
             item
             for item in web_source.iter_unfiltered_items_data()
         ]
+
+    query = web_source.form_query(
+        from_date="2024-01-01",
+        filter_arg="type:journal-article",
+    )
+
+    assert query == (
+        "works?filter=from-index-date:2024-01-01,type:journal-article" +
+        "&rows=1000&cursor=*&sort=indexed&order=asc"
+    )
+
