@@ -113,8 +113,10 @@ def setup_parser() -> argparse.ArgumentParser:
             type=pathlib.Path,
             required=False,
             help=(
-                "Path to a Python module file containing a function for filtering DOIs. "
-                + "This function must be called `filter_func` and accept one parameter, "
+                "Path to a Python module file containing a function for filtering "
+                + "DOIs. "
+                + "This function must be called `filter_func` and accept one "
+                + "parameter, "
                 + "which contains a dict-like interface to item metadata. The function "
                 + "returns False if the item is to be filtered out and True otherwise."
             ),
