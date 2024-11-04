@@ -134,6 +134,10 @@ ignore = [
   "RF102",  # not a fan of isort
   "PC", "PY006",  # not using pre-commit
   "PY007",  # poe not recognised as a task runner
+  "GH200",  # dependeabot
+  "GH210",  # dependeabot
+  "GH211",  # dependeabot
+  "GH212",  # dependeabot
 ]
 
 [tool.pytest.ini_options]
