@@ -1,4 +1,5 @@
 import logging
+import os
 
 import requests
 
@@ -37,12 +38,18 @@ def test_update(db_dir, db, test_data_dir, monkeypatch):
         mock_call_for_total,
     )
 
+    max_db_size_gb = (
+        1
+        if os.name == "nt"
+        else 2000
+    )
+
     params = crossref_lmdb.params.UpdateParams(
         email_address="test@test.com",
         from_date=None,
         filter_arg=None,
         db_dir=db_dir,
-        max_db_size_gb=2_000,
+        max_db_size_gb=max_db_size_gb,
         filter_path=None,
         compression_level=-1,
         show_progress=False,
