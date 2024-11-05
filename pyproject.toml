@@ -1,8 +1,18 @@
 [project]
 name = "crossref-lmdb"
 version = "0.1.0"
-description = "Add your description here"
+description = "A command-line application and Python library for accessing DOI metadata from a CrossRef public data export via a Lightning key:value (DOI:metadata) database."
 readme = "README.md"
+authors = [
+  {name = "Damien Mannion", email = "damien.mannion@unimelb.edu.au"},
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
     "alive-progress>=3.2.0",
@@ -14,6 +24,11 @@ dependencies = [
     "retryhttp>=1.1.0",
     "tenacity>=9.0.0",
 ]
+
+[project.urls]
+Documentation = "https://unimelbmdap.github.io/crossref-lmdb/"
+Repository = "https://github.com/unimelbmdap/crossref-lmdb"
+Issues = "https://github.com/unimelbmdap/crossref-lmdb/issues"
 
 [project.scripts]
 crossref-lmdb = "crossref_lmdb.cli:main"
