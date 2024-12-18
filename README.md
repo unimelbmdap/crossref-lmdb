@@ -32,7 +32,7 @@ Limitations
 The package can be installed using `pip`:
 
 ```bash
-pip install git+https://github.com/unimelbmdap/crossref-lmdb 
+pip install crossref-lmdb 
 ```
 
 Using the package requires the CrossRef public data export files (2024 release) to have been downloaded.

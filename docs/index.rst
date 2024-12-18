@@ -47,7 +47,7 @@ The package can be installed using ``pip``:
 
 .. code-block:: bash
 
-    pip install git+https://github.com/unimelbmdap/crossref-lmdb
+    pip install crossref-lmdb
 
 Using the package requires the CrossRef public data export files (2024 release) to have been downloaded.
 See `the instructions from CrossRef <https://www.crossref.org/blog/2024-public-data-file-now-available-featuring-new-experimental-formats/>`_ for obtaining these files.
