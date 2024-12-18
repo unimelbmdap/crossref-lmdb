@@ -1,6 +1,6 @@
 [project]
 name = "crossref-lmdb"
-version = "0.1.1"
+version = "0.1.2"
 description = "A command-line application and Python library for accessing DOI metadata from a CrossRef public data export via a Lightning key:value (DOI:metadata) database."
 readme = "README.md"
 authors = [
